@@ -4,11 +4,11 @@
   ],
   "dependency": true,
   "dependency_reason": "no_structurally_valid_path_after_projection",
-  "dependency_result_hash": "sha256:29c0356220b6aa85566501125128d725a98b2e7ed2fc62e7d824a9feeb97136a",
+  "dependency_result_hash": "sha256:bf0f7ba31fdcf451d1501447bca8dc4b6efa7c491366ad3c8d9ae6b14c4cab1e",
   "diagnostics": [
     {
-      "code": "DEPENDENCY.TRUE",
-      "message": "candidate set is a structural dependency",
+      "code": "DEPENDENCY.EMPTY_REACHABILITY",
+      "message": "projected reachability is empty",
       "severity": "info",
       "subject": {
         "id": "checkout",
@@ -16,8 +16,8 @@
       }
     },
     {
-      "code": "DEPENDENCY.EMPTY_REACHABILITY",
-      "message": "projected reachability is empty",
+      "code": "DEPENDENCY.TRUE",
+      "message": "candidate set is a structural dependency",
       "severity": "info",
       "subject": {
         "id": "checkout",

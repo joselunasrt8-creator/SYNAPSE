@@ -1,3 +1,4 @@
+import copy
 import importlib.util
 import json
 import re
@@ -599,20 +600,37 @@ class DependencyPredicateSchemaContractTests(unittest.TestCase):
         "invalid-reachability-result-rejection.json",
     }
 
-    def canonical_dependency_bytes(self, doc):
-        """Contract helper for fixture comparison only.
-
-        This is not a predicate evaluator or compiler implementation. It only
-        applies the documented dependency_result_hash boundary to static
-        dependency-result fixtures.
-        """
-        payload = dict(doc)
-        payload.pop("dependency_result_hash", None)
-        return json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    SET_LIKE_DEPENDENCY_ARRAYS = ("candidate_set", "reachable_after_projection", "roots")
 
     def diagnostic_sort_key(self, diagnostic):
         subject = diagnostic["subject"]
         return (diagnostic["code"], diagnostic["severity"], subject["kind"], subject["id"])
+
+    def canonical_dependency_payload(self, doc):
+        """Return the canonical dependency result payload used for equality and hashing.
+
+        This is not a predicate evaluator or compiler implementation. It only
+        applies the documented dependency_result_hash boundary to static
+        dependency-result fixtures: remove the derived hash field, canonicalize
+        set-like arrays, canonicalize deterministic diagnostics, and leave all
+        remaining structural fields unchanged for sorted-key JSON emission.
+        """
+        payload = copy.deepcopy(doc)
+        payload.pop("dependency_result_hash", None)
+        for field in self.SET_LIKE_DEPENDENCY_ARRAYS:
+            if field in payload:
+                payload[field] = sorted(set(payload[field]))
+        if "diagnostics" in payload:
+            payload["diagnostics"] = sorted(payload["diagnostics"], key=self.diagnostic_sort_key)
+        return payload
+
+    def canonical_dependency_bytes(self, doc):
+        """Contract helper for fixture comparison only."""
+        return json.dumps(
+            self.canonical_dependency_payload(doc),
+            sort_keys=True,
+            separators=(",", ":"),
+        ).encode("utf-8")
 
     def assert_dependency_ordering(self, doc):
         self.assertEqual(doc["roots"], sorted(set(doc["roots"])))
@@ -658,10 +676,14 @@ class DependencyPredicateSchemaContractTests(unittest.TestCase):
         doc = load_json(FIXTURES / "dependency" / "multiple-candidate-dependency.json")
         reordered = dict(doc)
         reordered["candidate_set"] = list(reversed(doc["candidate_set"]))
-        reordered["candidate_set"] = sorted(set(reordered["candidate_set"]))
-        reordered.pop("dependency_result_hash")
-        reordered["dependency_result_hash"] = "sha256:" + hashlib.sha256(self.canonical_dependency_bytes(reordered)).hexdigest()
-        self.assertEqual(reordered, doc)
+        self.assertEqual(
+            self.canonical_dependency_payload(reordered),
+            self.canonical_dependency_payload(doc),
+        )
+        self.assertEqual(
+            "sha256:" + hashlib.sha256(self.canonical_dependency_bytes(reordered)).hexdigest(),
+            doc["dependency_result_hash"],
+        )
 
     def test_dependency_result_hash_matches_canonical_fixture(self):
         import hashlib
