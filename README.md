@@ -150,3 +150,18 @@ Run the conformance suite:
 ```bash
 python -m unittest discover -s tests -p '*_tests.py'
 ```
+
+## AST and IR Contract
+
+Issue #10 freezes the compiler architecture boundary between source topology and normalized analysis representation in `AST_IR_CONTRACT.md`.
+
+- AST is source-faithful and diagnostic-oriented.
+- IR is canonical, normalized, and analysis-ready.
+- Normalized IR equality is based on canonical UTF-8 JSON bytes with sorted object keys, compact separators, canonical set ordering, and no trailing newline.
+- `normalized_ir_hash` is SHA-256 over that canonical normalized IR hash payload.
+
+This contract remains planning-only and does not add parser, normalizer, reachability, projection, predicate, artifact emission, CLI, runtime, proof, authority, policy, governance, execution, or mutation surfaces.
+
+## Frontend Planning Contracts
+
+`COMPILER_FRONTEND_CONTRACT.md` closes the pre-implementation frontend planning gaps by defining parser diagnostic taxonomy, AST construction rules, normalization design rules, diagnostic ordering, diagnostic schema boundaries, and diagnostics-only conformance vectors. It remains contract-only and does not add parser, AST builder, normalizer, analyzer, runtime, proof, authority, governance, policy, execution, or mutation behavior.

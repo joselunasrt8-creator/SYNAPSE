@@ -1,0 +1,17 @@
+{
+  "workloads": [
+    { "source_location": { "source_order": 0, "source_id": "minimal-valid" }, "expected_classification": "NULL", "candidate_set": ["api", "api"], "target": "db", "roots": ["client", "client"], "id": "serve" }
+  ],
+  "edges": [
+    { "source_location": { "source_order": 1, "source_id": "minimal-valid" }, "metadata": { "protocol": "tcp" }, "to": "db", "from": "api", "id": "api-db" },
+    { "source_location": { "source_order": 0, "source_id": "minimal-valid" }, "metadata": { "protocol": "https" }, "to": "api", "from": "client", "id": "client-api" }
+  ],
+  "components": [
+    { "source_location": { "source_order": 2, "source_id": "minimal-valid" }, "metadata": { "tier": "data" }, "type": "store", "id": "db" },
+    { "source_location": { "source_order": 1, "source_id": "minimal-valid" }, "metadata": { "tier": "app" }, "type": "service", "id": "api" },
+    { "source_location": { "source_order": 0, "source_id": "minimal-valid" }, "metadata": { "tier": "edge" }, "type": "entry", "id": "client" }
+  ],
+  "source": { "source_id": "minimal-valid" },
+  "topology_id": "minimal-valid",
+  "schema_version": "dependency-algebra.ast.v1"
+}

@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dependency-algebra.local/schemas/ast.schema.json",
+  "title": "Dependency Algebra AST v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "topology_id", "components", "edges", "workloads"],
+  "properties": {
+    "schema_version": { "const": "dependency-algebra.ast.v1" },
+    "topology_id": { "type": "string", "pattern": "^[a-zA-Z0-9_.-]+$" },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_id"],
+      "properties": {
+        "source_id": { "type": "string", "pattern": "^[a-zA-Z0-9_.-]+$" },
+        "description": { "type": "string" }
+      }
+    },
+    "components": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/component" }
+    },
+    "edges": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/edge" }
+    },
+    "workloads": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/workload" }
+    }
+  },
+  "$defs": {
+    "id": { "type": "string", "pattern": "^[a-zA-Z0-9_.-]+$" },
+    "metadata": { "type": "object", "additionalProperties": { "type": "string" } },
+    "source_location": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "source_id": { "$ref": "#/$defs/id" },
+        "source_order": { "type": "integer", "minimum": 0 },
+        "line": { "type": "integer", "minimum": 1 },
+        "column": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "component": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "type": { "type": "string" },
+        "metadata": { "$ref": "#/$defs/metadata" },
+        "source_location": { "$ref": "#/$defs/source_location" }
+      }
+    },
+    "edge": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "from", "to"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "from": { "$ref": "#/$defs/id" },
+        "to": { "$ref": "#/$defs/id" },
+        "metadata": { "$ref": "#/$defs/metadata" },
+        "source_location": { "$ref": "#/$defs/source_location" }
+      }
+    },
+    "workload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "roots", "target", "candidate_set", "expected_classification"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "roots": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/id" } },
+        "target": { "$ref": "#/$defs/id" },
+        "candidate_set": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/id" } },
+        "expected_classification": { "$ref": "classification.schema.json" },
+        "source_location": { "$ref": "#/$defs/source_location" }
+      }
+    }
+  }
+}

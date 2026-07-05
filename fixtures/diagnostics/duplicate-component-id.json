@@ -1,0 +1,13 @@
+{
+  "schema_version": "dependency-algebra.diagnostic.v1",
+  "diagnostics": [
+    {
+      "code": "NORMALIZE.DUPLICATE_COMPONENT_ID",
+      "phase": "normalization",
+      "severity": "error",
+      "message": "Component identifier is declared more than once.",
+      "subject": { "kind": "component", "id": "client" },
+      "source": { "source_id": "duplicate-identifiers", "source_order": 1 }
+    }
+  ]
+}

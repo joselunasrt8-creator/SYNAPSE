@@ -22,9 +22,15 @@ SCHEMA_PATHS = [
     SCHEMAS / "topology.schema.json",
     SCHEMAS / "artifact.schema.json",
     SCHEMAS / "classification.schema.json",
+    SCHEMAS / "ast.schema.json",
+    SCHEMAS / "ir.schema.json",
+    SCHEMAS / "diagnostic.schema.json",
 ]
 TOPOLOGY_SCHEMA_PATH = SCHEMAS / "topology.schema.json"
 CLASSIFICATION_SCHEMA_PATH = SCHEMAS / "classification.schema.json"
+AST_SCHEMA_PATH = SCHEMAS / "ast.schema.json"
+IR_SCHEMA_PATH = SCHEMAS / "ir.schema.json"
+DIAGNOSTIC_SCHEMA_PATH = SCHEMAS / "diagnostic.schema.json"
 
 
 def load_json(path: Path):
@@ -228,6 +234,187 @@ class SemanticTopologyValidationTests(unittest.TestCase):
         first = json.dumps(doc, sort_keys=True, separators=(",", ":"))
         second = json.dumps(load_json(path), sort_keys=True, separators=(",", ":"))
         self.assertEqual(first, second)
+
+
+@unittest.skipIf(Draft202012Validator is None, "jsonschema is not installed")
+class AstIrContractTests(unittest.TestCase):
+    FORBIDDEN_IR_FIELDS = {
+        "timestamp",
+        "absolute_path",
+        "environment",
+        "diagnostics",
+        "runtime",
+        "authority",
+        "proof",
+        "governance",
+        "policy",
+        "execution",
+        "continuityos",
+    }
+
+    def canonical_bytes(self, doc):
+        payload = dict(doc)
+        payload.pop("normalized_ir_hash", None)
+        return json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
+
+    def assert_ir_invariants(self, doc):
+        component_ids = [component["id"] for component in doc["components"]]
+        edge_ids = [edge["id"] for edge in doc["edges"]]
+        workload_ids = [workload["id"] for workload in doc["workloads"]]
+        component_set = set(component_ids)
+        edge_set = set(edge_ids)
+
+        self.assertEqual(component_ids, sorted(component_ids))
+        self.assertEqual(edge_ids, sorted(edge_ids))
+        self.assertEqual(workload_ids, sorted(workload_ids))
+        self.assertEqual(len(component_ids), len(component_set))
+        self.assertEqual(len(edge_ids), len(edge_set))
+        self.assertEqual(len(workload_ids), len(set(workload_ids)))
+        self.assertEqual(set(doc["adjacency"]), component_set)
+        self.assertEqual(set(doc["reverse_adjacency"]), component_set)
+
+        for edge in doc["edges"]:
+            self.assertIn(edge["from"], component_set)
+            self.assertIn(edge["to"], component_set)
+        for source, outbound in doc["adjacency"].items():
+            self.assertEqual([item["edge_id"] for item in outbound], sorted(item["edge_id"] for item in outbound))
+            for item in outbound:
+                self.assertIn(item["edge_id"], edge_set)
+                self.assertIn(item["component_id"], component_set)
+        for target, inbound in doc["reverse_adjacency"].items():
+            self.assertEqual([item["edge_id"] for item in inbound], sorted(item["edge_id"] for item in inbound))
+            for item in inbound:
+                self.assertIn(item["edge_id"], edge_set)
+                self.assertIn(item["component_id"], component_set)
+        for workload in doc["workloads"]:
+            self.assertEqual(workload["roots"], sorted(set(workload["roots"])))
+            self.assertEqual(workload["candidate_set"], sorted(set(workload["candidate_set"])))
+            self.assertIn(workload["target"], component_set)
+            self.assertTrue(set(workload["roots"]).issubset(component_set))
+            self.assertTrue(set(workload["candidate_set"]).issubset(component_set))
+            self.assertGreater(len(workload["candidate_set"]), 0)
+
+    def test_ast_fixture_validates(self):
+        validator = json_schema_validator(AST_SCHEMA_PATH)
+        for path in sorted((FIXTURES / "ast").glob("*.json")):
+            with self.subTest(path=path):
+                validator.validate(load_json(path))
+
+    def test_ir_fixtures_validate_and_satisfy_contract_invariants(self):
+        validator = json_schema_validator(IR_SCHEMA_PATH)
+        for path in sorted((FIXTURES / "ir").glob("*.json")):
+            with self.subTest(path=path):
+                doc = load_json(path)
+                validator.validate(doc)
+                self.assert_ir_invariants(doc)
+
+    def test_reordered_equivalent_ast_has_same_contract_ir(self):
+        canonical_ast = load_json(FIXTURES / "ast" / "minimal-valid-ast.json")
+        reordered_ast = load_json(FIXTURES / "ast" / "reordered-equivalent-ast.json")
+        expected_ir = load_json(FIXTURES / "ir" / "minimal-valid-ir.json")
+        self.assertEqual(canonical_ast["topology_id"], reordered_ast["topology_id"])
+        self.assertEqual(
+            {component["id"] for component in canonical_ast["components"]},
+            {component["id"] for component in reordered_ast["components"]},
+        )
+        self.assertEqual(
+            {edge["id"] for edge in canonical_ast["edges"]},
+            {edge["id"] for edge in reordered_ast["edges"]},
+        )
+        self.assertEqual(expected_ir, load_json(FIXTURES / "ir" / "minimal-valid-ir.json"))
+        self.assertEqual(self.canonical_bytes(expected_ir), self.canonical_bytes(load_json(FIXTURES / "ir" / "minimal-valid-ir.json")))
+
+    def test_invalid_topology_fixtures_cannot_be_valid_ir(self):
+        validator = json_schema_validator(IR_SCHEMA_PATH)
+        for path in [
+            FIXTURES / "invalid" / "unknown-node-reference.json",
+            FIXTURES / "invalid" / "duplicate-identifiers.json",
+        ]:
+            with self.subTest(path=path):
+                with self.assertRaises(ValidationError):
+                    validator.validate(load_json(path))
+
+    def test_ir_schema_excludes_volatile_and_forbidden_fields(self):
+        schema_text = json.dumps(load_json(IR_SCHEMA_PATH)).lower()
+        for field in self.FORBIDDEN_IR_FIELDS:
+            with self.subTest(field=field):
+                self.assertNotIn(field, schema_text)
+
+    def test_canonical_ir_serialization_and_hash_vector_are_stable(self):
+        import hashlib
+
+        doc = load_json(FIXTURES / "ir" / "minimal-valid-ir.json")
+        first = self.canonical_bytes(doc)
+        second = self.canonical_bytes(load_json(FIXTURES / "ir" / "minimal-valid-ir.json"))
+        self.assertEqual(first, second)
+        self.assertFalse(first.endswith(b"\n"))
+        self.assertEqual(
+            hashlib.sha256(first).hexdigest(),
+            "82b0a2e5d14644028f130161805e9b94047bb5e2a97cb92eab6a14f51ce8ade2",
+        )
+
+
+@unittest.skipIf(Draft202012Validator is None, "jsonschema is not installed")
+class FrontendDiagnosticSchemaTests(unittest.TestCase):
+    def test_diagnostic_fixtures_validate(self):
+        validator = json_schema_validator(DIAGNOSTIC_SCHEMA_PATH)
+        for path in sorted((FIXTURES / "diagnostics").glob("*.json")):
+            with self.subTest(path=path):
+                validator.validate(load_json(path))
+
+
+class FrontendDiagnosticContractTests(unittest.TestCase):
+    FORBIDDEN_DIAGNOSTIC_TERMS = {
+        "absolute_path",
+        "timestamp",
+        "environment",
+        "random",
+        "authorization",
+        "authority",
+        "proof",
+        "governance",
+        "policy",
+        "execution",
+        "mutation",
+    }
+
+    def diagnostic_sort_key(self, diagnostic):
+        source = diagnostic.get("source", {})
+        subject = diagnostic["subject"]
+        return (
+            diagnostic["code"],
+            subject["kind"],
+            subject["id"],
+            source.get("source_id", ""),
+            source.get("source_order", 10**12),
+        )
+
+    def test_diagnostic_fixtures_are_deterministically_ordered(self):
+        for path in sorted((FIXTURES / "diagnostics").glob("*.json")):
+            with self.subTest(path=path):
+                diagnostics = load_json(path)["diagnostics"]
+                self.assertEqual(diagnostics, sorted(diagnostics, key=self.diagnostic_sort_key))
+
+    def test_diagnostic_fixtures_exclude_forbidden_terms(self):
+        for path in sorted((FIXTURES / "diagnostics").glob("*.json")):
+            fixture_text = path.read_text(encoding="utf-8").lower()
+            with self.subTest(path=path):
+                for term in self.FORBIDDEN_DIAGNOSTIC_TERMS:
+                    self.assertNotIn(term, fixture_text)
+
+    def test_required_frontend_failure_vectors_exist(self):
+        expected = {
+            "malformed-json.json",
+            "unsupported-schema-version.json",
+            "duplicate-component-id.json",
+            "duplicate-workload-id.json",
+            "unresolved-edge-endpoint.json",
+            "unresolved-workload-root.json",
+            "empty-candidate-set.json",
+            "ordered-multiple-diagnostics.json",
+        }
+        actual = {path.name for path in (FIXTURES / "diagnostics").glob("*.json")}
+        self.assertEqual(actual, expected)
 
 
 if __name__ == "__main__":

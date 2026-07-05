@@ -10,3 +10,18 @@ Fixtures are canonical schema-stabilization inputs.
 - `fixtures/invalid/duplicate-identifiers.json`: duplicate component and edge identifiers for deterministic diagnostics.
 - `fixtures/invalid/malformed-json.json`: malformed JSON parser failure fixture.
 - `fixtures/determinism/stable-ordering.json`: intentionally unordered input for deterministic normalization tests.
+
+## AST and IR contract fixtures
+
+- `fixtures/ast/minimal-valid-ast.json`: source-faithful AST for the minimal topology contract.
+- `fixtures/ast/reordered-equivalent-ast.json`: equivalent AST with reordered object keys, reordered arrays, and duplicate set-like workload declarations.
+- `fixtures/ir/minimal-valid-ir.json`: canonical normalized IR expected for both equivalent AST fixtures.
+- `fixtures/ir/cyclic-ir.json`: cycle representation without traversal-derived fields.
+- `fixtures/ir/disconnected-ir.json`: disconnected and isolated component representation without error.
+- `fixtures/ir/deduplicated-roots-candidates-ir.json`: duplicate roots and duplicate candidates represented after set normalization.
+
+Invalid unresolved references and duplicate table identifiers remain represented by `fixtures/invalid/unknown-node-reference.json` and `fixtures/invalid/duplicate-identifiers.json`; those fixtures are rejected before IR construction.
+
+## Frontend diagnostic fixtures
+
+Fixtures under `fixtures/diagnostics/` are diagnostics-only conformance vectors for future parser, AST construction, and normalization failures. They cover malformed JSON, unsupported topology schema versions, duplicate component and workload identifiers, unresolved edge endpoints, unresolved workload roots, empty candidate sets, and deterministic multi-diagnostic ordering. These fixtures are not produced by implementation code in this repository state.

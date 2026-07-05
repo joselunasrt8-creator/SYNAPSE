@@ -1,0 +1,29 @@
+{
+  "schema_version": "dependency-algebra.diagnostic.v1",
+  "diagnostics": [
+    {
+      "code": "NORMALIZE.DUPLICATE_COMPONENT_ID",
+      "phase": "normalization",
+      "severity": "error",
+      "message": "Component identifier is declared more than once.",
+      "subject": { "kind": "component", "id": "client" },
+      "source": { "source_id": "multi", "source_order": 0 }
+    },
+    {
+      "code": "NORMALIZE.UNRESOLVED_EDGE_TO",
+      "phase": "normalization",
+      "severity": "error",
+      "message": "Edge target endpoint does not resolve to a component.",
+      "subject": { "kind": "edge", "id": "client-missing" },
+      "source": { "source_id": "multi", "source_order": 1 }
+    },
+    {
+      "code": "NORMALIZE.UNRESOLVED_WORKLOAD_ROOT",
+      "phase": "normalization",
+      "severity": "error",
+      "message": "Workload root does not resolve to a component.",
+      "subject": { "kind": "root", "id": "missing-root" },
+      "source": { "source_id": "multi", "source_order": 2 }
+    }
+  ]
+}

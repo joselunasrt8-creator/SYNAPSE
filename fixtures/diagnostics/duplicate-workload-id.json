@@ -1,0 +1,13 @@
+{
+  "schema_version": "dependency-algebra.diagnostic.v1",
+  "diagnostics": [
+    {
+      "code": "NORMALIZE.DUPLICATE_WORKLOAD_ID",
+      "phase": "normalization",
+      "severity": "error",
+      "message": "Workload identifier is declared more than once.",
+      "subject": { "kind": "workload", "id": "serve" },
+      "source": { "source_id": "duplicate-workload", "source_order": 1 }
+    }
+  ]
+}

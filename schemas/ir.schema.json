@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dependency-algebra.local/schemas/ir.schema.json",
+  "title": "Dependency Algebra Normalized IR v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "topology_id", "components", "edges", "adjacency", "reverse_adjacency", "workloads"],
+  "properties": {
+    "schema_version": { "const": "dependency-algebra.ir.v1" },
+    "topology_id": { "$ref": "#/$defs/id" },
+    "normalized_ir_hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "components": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/component" } },
+    "edges": { "type": "array", "items": { "$ref": "#/$defs/edge" } },
+    "adjacency": { "$ref": "#/$defs/adjacency" },
+    "reverse_adjacency": { "$ref": "#/$defs/adjacency" },
+    "workloads": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/workload" } }
+  },
+  "$defs": {
+    "id": { "type": "string", "pattern": "^[a-zA-Z0-9_.-]+$" },
+    "metadata": { "type": "object", "additionalProperties": { "type": "string" } },
+    "lineage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_id"],
+      "properties": {
+        "source_id": { "$ref": "#/$defs/id" }
+      }
+    },
+    "component": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "source"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "type": { "type": "string" },
+        "metadata": { "$ref": "#/$defs/metadata" },
+        "source": { "$ref": "#/$defs/lineage" }
+      }
+    },
+    "edge": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "from", "to", "source"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "from": { "$ref": "#/$defs/id" },
+        "to": { "$ref": "#/$defs/id" },
+        "metadata": { "$ref": "#/$defs/metadata" },
+        "source": { "$ref": "#/$defs/lineage" }
+      }
+    },
+    "adjacency_edge": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["edge_id", "component_id"],
+      "properties": {
+        "edge_id": { "$ref": "#/$defs/id" },
+        "component_id": { "$ref": "#/$defs/id" }
+      }
+    },
+    "adjacency": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "items": { "$ref": "#/$defs/adjacency_edge" }
+      }
+    },
+    "workload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "roots", "target", "candidate_set", "expected_classification", "source"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "roots": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/id" } },
+        "target": { "$ref": "#/$defs/id" },
+        "candidate_set": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/id" } },
+        "expected_classification": { "$ref": "classification.schema.json" },
+        "source": { "$ref": "#/$defs/lineage" }
+      }
+    }
+  }
+}
