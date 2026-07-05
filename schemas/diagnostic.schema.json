@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dependency-algebra.local/schemas/diagnostic.schema.json",
+  "title": "Dependency Algebra Frontend Diagnostic v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "diagnostics"],
+  "properties": {
+    "schema_version": { "const": "dependency-algebra.diagnostic.v1" },
+    "diagnostics": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/diagnostic" }
+    }
+  },
+  "$defs": {
+    "id": { "type": "string", "pattern": "^[a-zA-Z0-9_.-]+$" },
+    "phase": { "enum": ["parse", "ast_construction", "normalization"] },
+    "severity": { "const": "error" },
+    "diagnostic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code", "phase", "severity", "message", "subject"],
+      "properties": {
+        "code": {
+          "type": "string",
+          "pattern": "^(PARSER|AST|NORMALIZE)\\.[A-Z0-9_]+$"
+        },
+        "phase": { "$ref": "#/$defs/phase" },
+        "severity": { "$ref": "#/$defs/severity" },
+        "message": { "type": "string", "minLength": 1 },
+        "subject": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "id"],
+          "properties": {
+            "kind": { "enum": ["document", "schema_version", "component", "edge", "workload", "root", "target", "candidate_set", "candidate"] },
+            "id": { "type": "string" }
+          }
+        },
+        "source": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["source_id"],
+          "properties": {
+            "source_id": { "$ref": "#/$defs/id" },
+            "source_order": { "type": "integer", "minimum": 0 },
+            "line": { "type": "integer", "minimum": 1 },
+            "column": { "type": "integer", "minimum": 1 }
+          }
+        }
+      }
+    }
+  }
+}

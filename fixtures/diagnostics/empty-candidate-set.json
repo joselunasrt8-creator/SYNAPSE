@@ -1,0 +1,13 @@
+{
+  "schema_version": "dependency-algebra.diagnostic.v1",
+  "diagnostics": [
+    {
+      "code": "NORMALIZE.EMPTY_CANDIDATE_SET",
+      "phase": "normalization",
+      "severity": "error",
+      "message": "Candidate set must be non-empty in v1.",
+      "subject": { "kind": "candidate_set", "id": "serve" },
+      "source": { "source_id": "empty-candidate-set", "source_order": 0 }
+    }
+  ]
+}

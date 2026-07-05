@@ -1,0 +1,13 @@
+{
+  "schema_version": "dependency-algebra.diagnostic.v1",
+  "diagnostics": [
+    {
+      "code": "NORMALIZE.UNRESOLVED_EDGE_TO",
+      "phase": "normalization",
+      "severity": "error",
+      "message": "Edge target endpoint does not resolve to a component.",
+      "subject": { "kind": "edge", "id": "client-missing" },
+      "source": { "source_id": "unknown-node-reference", "source_order": 0 }
+    }
+  ]
+}

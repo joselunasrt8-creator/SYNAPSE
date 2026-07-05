@@ -1,0 +1,9 @@
+{
+  "schema_version": "dependency-algebra.ir.v1",
+  "topology_id": "disconnected",
+  "components": [ { "id": "a", "source": { "source_id": "a" } }, { "id": "b", "source": { "source_id": "b" } }, { "id": "isolated", "source": { "source_id": "isolated" } } ],
+  "edges": [ { "id": "a-b", "from": "a", "to": "b", "source": { "source_id": "a-b" } } ],
+  "adjacency": { "a": [ { "edge_id": "a-b", "component_id": "b" } ], "b": [], "isolated": [] },
+  "reverse_adjacency": { "a": [], "b": [ { "edge_id": "a-b", "component_id": "a" } ], "isolated": [] },
+  "workloads": [ { "id": "uses-isolated", "roots": ["isolated"], "target": "isolated", "candidate_set": ["isolated"], "expected_classification": "NULL", "source": { "source_id": "uses-isolated" } } ]
+}

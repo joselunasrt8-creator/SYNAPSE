@@ -1,0 +1,9 @@
+{
+  "schema_version": "dependency-algebra.ir.v1",
+  "topology_id": "deduplicated",
+  "components": [ { "id": "a", "source": { "source_id": "a" } }, { "id": "b", "source": { "source_id": "b" } } ],
+  "edges": [ { "id": "a-b", "from": "a", "to": "b", "source": { "source_id": "a-b" } } ],
+  "adjacency": { "a": [ { "edge_id": "a-b", "component_id": "b" } ], "b": [] },
+  "reverse_adjacency": { "a": [], "b": [ { "edge_id": "a-b", "component_id": "a" } ] },
+  "workloads": [ { "id": "dedupe", "roots": ["a", "b"], "target": "b", "candidate_set": ["a", "b"], "expected_classification": "DEGRADED", "source": { "source_id": "dedupe" } } ]
+}

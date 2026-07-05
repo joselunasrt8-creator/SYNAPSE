@@ -1,0 +1,9 @@
+{
+  "schema_version": "dependency-algebra.ir.v1",
+  "topology_id": "cyclic",
+  "components": [ { "id": "a", "source": { "source_id": "a" } }, { "id": "b", "source": { "source_id": "b" } } ],
+  "edges": [ { "id": "a-b", "from": "a", "to": "b", "source": { "source_id": "a-b" } }, { "id": "b-a", "from": "b", "to": "a", "source": { "source_id": "b-a" } } ],
+  "adjacency": { "a": [ { "edge_id": "a-b", "component_id": "b" } ], "b": [ { "edge_id": "b-a", "component_id": "a" } ] },
+  "reverse_adjacency": { "a": [ { "edge_id": "b-a", "component_id": "b" } ], "b": [ { "edge_id": "a-b", "component_id": "a" } ] },
+  "workloads": [ { "id": "cycle-work", "roots": ["a"], "target": "b", "candidate_set": ["a"], "expected_classification": "DEGRADED", "source": { "source_id": "cycle-work" } } ]
+}

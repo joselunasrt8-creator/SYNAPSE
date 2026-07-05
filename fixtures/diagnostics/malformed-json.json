@@ -1,0 +1,13 @@
+{
+  "schema_version": "dependency-algebra.diagnostic.v1",
+  "diagnostics": [
+    {
+      "code": "PARSER.INVALID_JSON",
+      "phase": "parse",
+      "severity": "error",
+      "message": "Source is not valid JSON.",
+      "subject": { "kind": "document", "id": "malformed-json" },
+      "source": { "source_id": "malformed-json", "line": 1, "column": 1 }
+    }
+  ]
+}

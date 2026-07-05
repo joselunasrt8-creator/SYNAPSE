@@ -1,0 +1,13 @@
+{
+  "schema_version": "dependency-algebra.diagnostic.v1",
+  "diagnostics": [
+    {
+      "code": "NORMALIZE.UNRESOLVED_WORKLOAD_ROOT",
+      "phase": "normalization",
+      "severity": "error",
+      "message": "Workload root does not resolve to a component.",
+      "subject": { "kind": "root", "id": "missing-root" },
+      "source": { "source_id": "unknown-root", "source_order": 0 }
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "schema_version": "dependency-algebra.ir.v1",
+  "topology_id": "minimal-valid",
+  "components": [
+    { "id": "api", "type": "service", "metadata": { "tier": "app" }, "source": { "source_id": "api" } },
+    { "id": "client", "type": "entry", "metadata": { "tier": "edge" }, "source": { "source_id": "client" } },
+    { "id": "db", "type": "store", "metadata": { "tier": "data" }, "source": { "source_id": "db" } }
+  ],
+  "edges": [
+    { "id": "api-db", "from": "api", "to": "db", "metadata": { "protocol": "tcp" }, "source": { "source_id": "api-db" } },
+    { "id": "client-api", "from": "client", "to": "api", "metadata": { "protocol": "https" }, "source": { "source_id": "client-api" } }
+  ],
+  "adjacency": {
+    "api": [ { "edge_id": "api-db", "component_id": "db" } ],
+    "client": [ { "edge_id": "client-api", "component_id": "api" } ],
+    "db": []
+  },
+  "reverse_adjacency": {
+    "api": [ { "edge_id": "client-api", "component_id": "client" } ],
+    "client": [],
+    "db": [ { "edge_id": "api-db", "component_id": "api" } ]
+  },
+  "workloads": [
+    { "id": "serve", "roots": ["client"], "target": "db", "candidate_set": ["api"], "expected_classification": "NULL", "source": { "source_id": "serve" } }
+  ]
+}

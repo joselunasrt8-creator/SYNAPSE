@@ -23,3 +23,9 @@ Compiler artifacts must be reproducible from the validated input topology and fr
 ## Replay safety
 
 Repeated validation of the same fixture must produce byte-identical structural outputs once artifact emission exists. The schema-only milestone verifies that no runtime execution, proof generation, authority token, or external mutation surface is present.
+
+## Normalized IR serialization
+
+For `dependency-algebra.ir.v1`, `normalized_ir_hash` is SHA-256 over canonical UTF-8 JSON bytes of the normalized IR hash payload. The payload omits `normalized_ir_hash` itself and any transient diagnostics. Serialization uses lexicographically sorted object keys, canonical ordering for set-like arrays, compact JSON separators, and no trailing newline.
+
+Hash-participating IR fields are the normalized structural fields: schema version, topology identity, canonical component table, canonical edge table, forward adjacency, reverse adjacency, normalized workload table, retained string metadata, and stable source lineage identifiers. Volatile source locations, local machine paths, environment-derived values, wall-clock timestamps, random identifiers, governance fields, authority fields, proof fields, runtime fields, policy fields, execution fields, and mutation fields are excluded.

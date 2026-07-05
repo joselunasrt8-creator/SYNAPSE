@@ -1,0 +1,13 @@
+{
+  "schema_version": "dependency-algebra.diagnostic.v1",
+  "diagnostics": [
+    {
+      "code": "AST.SCHEMA_VERSION_UNSUPPORTED",
+      "phase": "ast_construction",
+      "severity": "error",
+      "message": "Topology schema version is unsupported.",
+      "subject": { "kind": "schema_version", "id": "dependency-algebra.topology.v0" },
+      "source": { "source_id": "unsupported-schema-version", "source_order": 0 }
+    }
+  ]
+}
