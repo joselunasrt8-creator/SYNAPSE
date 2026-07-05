@@ -257,12 +257,68 @@ class AstIrContractTests(unittest.TestCase):
         payload.pop("normalized_ir_hash", None)
         return json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
 
+    def contract_test_ast_projection(self, doc):
+        """Project AST fixture content for contract tests only.
+
+        This helper is deliberately scoped to fixture assertions. It is not a
+        parser, compiler normalizer, or implementation surface; it only removes
+        source-order/object-order noise so tests can assert that equivalent AST
+        fixtures carry the same structural contract content.
+        """
+        return {
+            "schema_version": doc["schema_version"],
+            "topology_id": doc["topology_id"],
+            "source": doc["source"],
+            "components": sorted(
+                (
+                    {
+                        "id": component["id"],
+                        "type": component.get("type"),
+                        "metadata": component.get("metadata", {}),
+                        "source_id": component["source_location"]["source_id"],
+                    }
+                    for component in doc["components"]
+                ),
+                key=lambda component: component["id"],
+            ),
+            "edges": sorted(
+                (
+                    {
+                        "id": edge["id"],
+                        "from": edge["from"],
+                        "to": edge["to"],
+                        "metadata": edge.get("metadata", {}),
+                        "source_id": edge["source_location"]["source_id"],
+                    }
+                    for edge in doc["edges"]
+                ),
+                key=lambda edge: edge["id"],
+            ),
+            "workloads": sorted(
+                (
+                    {
+                        "id": workload["id"],
+                        "roots": sorted(set(workload["roots"])),
+                        "target": workload["target"],
+                        "candidate_set": sorted(set(workload["candidate_set"])),
+                        "expected_classification": workload["expected_classification"],
+                        "source_id": workload["source_location"]["source_id"],
+                    }
+                    for workload in doc["workloads"]
+                ),
+                key=lambda workload: workload["id"],
+            ),
+        }
+
     def assert_ir_invariants(self, doc):
         component_ids = [component["id"] for component in doc["components"]]
         edge_ids = [edge["id"] for edge in doc["edges"]]
         workload_ids = [workload["id"] for workload in doc["workloads"]]
         component_set = set(component_ids)
         edge_set = set(edge_ids)
+        edge_by_id = {edge["id"]: edge for edge in doc["edges"]}
+        forward_edge_ids = []
+        reverse_edge_ids = []
 
         self.assertEqual(component_ids, sorted(component_ids))
         self.assertEqual(edge_ids, sorted(edge_ids))
@@ -281,11 +337,21 @@ class AstIrContractTests(unittest.TestCase):
             for item in outbound:
                 self.assertIn(item["edge_id"], edge_set)
                 self.assertIn(item["component_id"], component_set)
+                edge = edge_by_id[item["edge_id"]]
+                self.assertEqual(edge["from"], source)
+                self.assertEqual(edge["to"], item["component_id"])
+                forward_edge_ids.append(item["edge_id"])
         for target, inbound in doc["reverse_adjacency"].items():
             self.assertEqual([item["edge_id"] for item in inbound], sorted(item["edge_id"] for item in inbound))
             for item in inbound:
                 self.assertIn(item["edge_id"], edge_set)
                 self.assertIn(item["component_id"], component_set)
+                edge = edge_by_id[item["edge_id"]]
+                self.assertEqual(edge["to"], target)
+                self.assertEqual(edge["from"], item["component_id"])
+                reverse_edge_ids.append(item["edge_id"])
+        self.assertEqual(sorted(forward_edge_ids), edge_ids)
+        self.assertEqual(sorted(reverse_edge_ids), edge_ids)
         for workload in doc["workloads"]:
             self.assertEqual(workload["roots"], sorted(set(workload["roots"])))
             self.assertEqual(workload["candidate_set"], sorted(set(workload["candidate_set"])))
@@ -311,18 +377,10 @@ class AstIrContractTests(unittest.TestCase):
     def test_reordered_equivalent_ast_has_same_contract_ir(self):
         canonical_ast = load_json(FIXTURES / "ast" / "minimal-valid-ast.json")
         reordered_ast = load_json(FIXTURES / "ast" / "reordered-equivalent-ast.json")
-        expected_ir = load_json(FIXTURES / "ir" / "minimal-valid-ir.json")
-        self.assertEqual(canonical_ast["topology_id"], reordered_ast["topology_id"])
         self.assertEqual(
-            {component["id"] for component in canonical_ast["components"]},
-            {component["id"] for component in reordered_ast["components"]},
+            self.contract_test_ast_projection(canonical_ast),
+            self.contract_test_ast_projection(reordered_ast),
         )
-        self.assertEqual(
-            {edge["id"] for edge in canonical_ast["edges"]},
-            {edge["id"] for edge in reordered_ast["edges"]},
-        )
-        self.assertEqual(expected_ir, load_json(FIXTURES / "ir" / "minimal-valid-ir.json"))
-        self.assertEqual(self.canonical_bytes(expected_ir), self.canonical_bytes(load_json(FIXTURES / "ir" / "minimal-valid-ir.json")))
 
     def test_invalid_topology_fixtures_cannot_be_valid_ir(self):
         validator = json_schema_validator(IR_SCHEMA_PATH)
@@ -349,8 +407,8 @@ class AstIrContractTests(unittest.TestCase):
         self.assertEqual(first, second)
         self.assertFalse(first.endswith(b"\n"))
         self.assertEqual(
-            hashlib.sha256(first).hexdigest(),
-            "82b0a2e5d14644028f130161805e9b94047bb5e2a97cb92eab6a14f51ce8ade2",
+            "sha256:" + hashlib.sha256(first).hexdigest(),
+            doc["normalized_ir_hash"],
         )
 
 
