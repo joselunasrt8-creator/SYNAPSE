@@ -1,9 +1,15 @@
+import importlib.util
 import json
 import re
 import unittest
 from pathlib import Path
 
-from jsonschema import Draft202012Validator, RefResolver, ValidationError
+if importlib.util.find_spec("jsonschema") is None:
+    Draft202012Validator = None
+    RefResolver = None
+    ValidationError = Exception
+else:
+    from jsonschema import Draft202012Validator, RefResolver, ValidationError
 
 ROOT = Path(__file__).resolve().parents[1]
 FIXTURES = ROOT / "fixtures"
@@ -87,6 +93,7 @@ def validate_topology(doc):
     return errors
 
 
+@unittest.skipIf(Draft202012Validator is None, "jsonschema is not installed")
 class JsonSchemaContractTests(unittest.TestCase):
     def test_schema_documents_are_valid_draft_2020_12_schemas(self):
         for path in SCHEMA_PATHS:
