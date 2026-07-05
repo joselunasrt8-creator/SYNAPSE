@@ -1,0 +1,344 @@
+# SYNAPSE Repository Audit — Formal Correctness & Implementation Integrity
+
+Audit date: 2026-07-05  
+Repository: `dependency-algebra`  
+Audit mode: bounded topology/planning audit plus static conformance validation. No compiler/runtime semantics were changed.
+
+## 1. Executive Summary
+
+The repository is internally coherent as a **Milestone 1 schema-and-fixture contract repository**, but it is not yet a faithful executable implementation of the full Dependency Algebra compiler described by its canonical pipeline. The strongest evidence is that the README explicitly says the project is planning-first, the implemented surface is schema-only, and no compiler engine, CLI, runtime hook, proof system, or execution surface is included.
+
+Consequently:
+
+- Mathematical intent is clear for the core predicate `Dependency(S, W) ⇔ Reach(W | ¬S) = ∅`, reachability, complement projection, and structural classifications.
+- Schema contracts and canonical fixtures cover topology, artifacts, AST, IR, diagnostics, reachability, projection, dependency predicate results, and classifications.
+- There is no parser, AST builder, IR normalizer, reachability engine, projection engine, dependency evaluator, classifier, artifact emitter, CLI, or runtime implementation to prove semantically correct.
+- Tests primarily validate static schemas, fixtures, ordering conventions, hash vectors, and boundary exclusions. They do not prove compiler correctness because they do not execute a compiler pipeline.
+- In the current environment, JSON Schema tests were skipped until dependencies could be installed; dependency installation failed because package index access returned 403, so full schema validation could not be executed locally.
+
+Overall assessment: **publishable as a planning/specification milestone**, **not publishable as a reference implementation of the compiler**, and **not production-ready**.
+
+## 2. Repository Architecture Diagram
+
+```text
+Documents
+├── README.md / SPEC.md / BOUNDARY.md / DETERMINISM.md
+├── AST_IR_CONTRACT.md
+├── COMPILER_FRONTEND_CONTRACT.md
+├── REACHABILITY_CONTRACT.md
+├── COMPLEMENT_PROJECTION_CONTRACT.md
+└── DEPENDENCY_PREDICATE_CONTRACT.md
+
+Schemas
+├── topology.schema.json
+├── classification.schema.json
+├── artifact.schema.json
+├── ast.schema.json
+├── ir.schema.json
+├── diagnostic.schema.json
+├── reachability.schema.json
+├── projection.schema.json
+└── dependency.schema.json
+
+Fixtures
+├── valid / degraded / null / invalid / determinism
+├── ast / ir
+├── diagnostics
+├── reachability
+├── projection
+└── dependency
+
+Tests
+├── tests/schema_tests.py
+│   ├── JSON Schema validation when jsonschema is installed
+│   ├── in-test semantic topology validator
+│   ├── fixture invariant checks
+│   ├── deterministic ordering checks
+│   └── hash-vector checks
+└── tests/boundary_tests.py
+    └── forbidden implementation-surface path checks
+
+CI
+└── .github/workflows/test.yml
+    ├── install requirements-dev.txt
+    └── run unittest discovery
+
+Missing implementation layers
+└── Parser → AST builder → IR normalizer → Reachability engine → Projection engine
+    → Dependency evaluator → Classifier → Artifact emitter → CLI/API
+```
+
+## 3. Specification Coverage Matrix
+
+| Specification | Implemented | Tested | Complete |
+|---|---:|---:|---:|
+| Product/boundary identity | Yes, documentation and boundary tests | Partial | Complete for Milestone 1 |
+| Topology JSON contract | Schema only | Partial | Shape complete; semantic rules are test helper only |
+| Classification enum | Schema only | Partial | Enum complete; classification semantics incomplete |
+| Compiler artifact | Schema only | Partial | Reserved fields only; no artifact semantics/emitter |
+| Parser/frontend diagnostics | Contract + diagnostic schema + fixtures | Partial | No parser; no producer of diagnostics |
+| AST contract | Schema + fixtures | Partial | No AST builder |
+| IR contract | Schema + fixtures | Partial | No normalizer |
+| Reachability semantics | Contract + result schema + fixtures | Partial | No traversal engine |
+| Complement projection | Contract + result schema + fixtures | Partial | No projection engine |
+| Dependency predicate | Contract + result schema + fixtures | Partial | No evaluator |
+| Deterministic serialization/hashing | Contract + fixture hash checks | Partial | Hash helpers exist in tests only |
+| Runtime behavior | Explicitly out of scope | Boundary tested | Complete absence for Milestone 1 |
+| CI | Workflow present | Partial | Depends on network package installation |
+
+## 4. Implementation Coverage Matrix
+
+| Layer | Present implementation | Integrity assessment |
+|---|---|---|
+| Documentation | Yes | Strong milestone honesty; repeatedly states schema-only/planning-first status |
+| JSON schemas | Yes | Broad structural coverage; schema expressiveness cannot enforce graph cross-references or ordering |
+| Fixtures | Yes | Good canonical vectors; static, not generated by implementation |
+| Test harness | Yes | Useful conformance checks; many checks skip without `jsonschema` |
+| Semantic validator | Test helper only | Not product implementation; useful oracle fragment, but incomplete |
+| Parser | No | Missing implementation |
+| AST builder | No | Missing implementation |
+| IR normalizer | No | Missing implementation |
+| Reachability engine | No | Missing implementation |
+| Projection engine | No | Missing implementation |
+| Dependency evaluator | No | Missing implementation |
+| Classification engine | No | Missing implementation |
+| Artifact emitter | No | Missing implementation |
+| Runtime | No | Correctly absent per milestone boundary |
+| CLI/API | No | Missing implementation |
+
+## 5. Mathematical Correctness Assessment
+
+The formal model is internally plausible but not executable. The predicate is stated as `Dependency(S, W) ⇔ Reach(W | ¬S) = ∅`; `S` is component-only and non-empty in v1; `¬S` removes candidate components and incident edges; `Reach(W)` is directed path existence from workload roots to target. The model is deterministic at the contract level through canonical ordering and hash boundaries.
+
+What is formally correct at contract level:
+
+- Candidate sets are finite component sets.
+- Unknown candidates are validation errors, not silent analysis inputs.
+- Reachability is path existence, not path enumeration.
+- Multi-root reachability is existential.
+- Cycles terminate by visited-node tracking.
+- Projection is induced component removal plus incident edge removal.
+- Structural classifications are explicitly separated from governance/runtime semantics.
+
+What lacks proof or executable verification:
+
+- No proof that the static fixtures are derivable from the contracts.
+- No proof that classification definitions (`VALID`, `DEGRADED`, `NULL`) are mutually exclusive and exhaustive over implemented artifact states.
+- No executable proof that `Reach(W | ¬S) = ∅` is computed correctly, because neither `Reach` nor `¬S` is implemented.
+- No proof that artifact aggregation preserves dependency predicate semantics across multiple workloads.
+
+## 6. Compiler Audit
+
+The canonical compiler pipeline is documented as:
+
+```text
+Topology JSON → Parser → AST → IR → Reachability → Complement Projection → Dependency Predicate → Compiler Artifact
+```
+
+Audit result by stage:
+
+| Stage | Deterministic behavior | Invariant preservation | Canonical output | Replayability | Assessment |
+|---|---|---|---|---|---|
+| Topology JSON | Schema-constrained | Partly semantic via tests | No canonicalizer | Fixture-only | Partial |
+| Parser | Not implemented | Not assessable | Not assessable | Not assessable | Missing |
+| AST | Schema/fixtures only | Partly checked | Fixture-only | Hash not central | Partial |
+| IR | Schema/fixtures only | Fixture invariants checked | Fixture-only | Hash vector checked | Partial |
+| Reachability | Schema/fixtures only | Fixture ordering checked | Fixture-only | Hash vectors checked | Partial |
+| Projection | Schema/fixtures only | Fixture invariants checked | Fixture-only | Hash vector checked | Partial |
+| Dependency predicate | Schema/fixtures only | Truth table checked against stored fields | Fixture-only | Hash vectors checked | Partial |
+| Artifact | Schema only | Not checked end-to-end | No emitter | No emitted artifacts | Missing |
+
+Key conclusion: the repository is a contract suite, not an executable compiler implementation.
+
+## 7. Runtime Audit
+
+No runtime behavior is present by design. Boundary tests scan repository paths for forbidden implementation-surface terms and documentation excludes governance, proof, authority, runtime, policy, execution, and external mutation responsibilities. This is correct for Milestone 1, but it means runtime correctness cannot be assessed beyond confirming absence.
+
+## 8. Test Coverage Assessment
+
+Test classifications:
+
+| Test area | Classification | What it proves | What it does not prove |
+|---|---|---|---|
+| Schema validity tests | Specification validation | Draft 2020-12 schema documents and fixture shapes when dependencies installed | Compiler semantics |
+| Classification enum tests | Conformance | Only `VALID`, `DEGRADED`, `NULL` are accepted | Classification correctness |
+| In-test semantic topology validation | Regression/spec fragment | Duplicate and unknown-reference fixture diagnostics | Product semantic validation |
+| AST/IR fixture tests | Conformance | Fixture shape, static invariants, deterministic hash | AST/IR generation correctness |
+| Diagnostics tests | Conformance | Fixture ordering and forbidden terms | Diagnostic reachability/completeness from real failures |
+| Reachability tests | Conformance | Result fixture ordering and hashes | Traversal algorithm correctness |
+| Dependency tests | Conformance/property fragment | Stored result truth table aligns with stored `reachable_after_projection` | Predicate evaluator correctness |
+| Projection tests | Conformance | Static projected IR fixture invariants and hash | Projection algorithm correctness |
+| Boundary tests | Boundary regression | Forbidden path terms absent and docs assert boundary | Semantic absence of hidden runtime behavior in content |
+
+Major gap: tests validate static artifacts, not generated artifacts.
+
+## 9. Documentation Audit
+
+Documentation is unusually explicit about milestone scope and non-goals. It consistently states that this repository is planning-first/schema-only and excludes runtime/governance/proof/execution surfaces. The main documentation risk is product identity wording: the README calls the repository a "reference implementation" while also saying no compiler engine is present. This is acceptable only if "reference implementation" means reference contract fixture suite, not executable compiler.
+
+## 10. Determinism Assessment
+
+Determinism is well specified at the schema/fixture level:
+
+- Canonical JSON uses sorted object keys and compact separators.
+- Set-like arrays are sorted.
+- Hashes use SHA-256 over explicit payloads excluding only derived hash fields where specified.
+- Volatile fields are excluded by schemas/tests.
+- Fixture diagnostics have deterministic sort keys.
+
+Determinism is not proven for implementation behavior because the implementation does not exist. Potential future nondeterminism surfaces include graph traversal worklists, map iteration, diagnostic collection order, schema validation error order, artifact aggregation, and hash payload construction.
+
+## 11. Risk Assessment
+
+| Risk | Severity | Impact |
+|---|---|---|
+| Users infer an executable compiler exists | High | Publication/production claims can be misleading |
+| Static fixtures drift from contracts | High | False confidence in semantics |
+| Classification semantics under-specified | High | Artifact classification cannot be faithfully implemented |
+| Tests skip schema validation without dependencies | Medium | Local green tests can hide schema/fixture failures |
+| Product semantic validator exists only in tests | Medium | No reusable implementation boundary |
+| Schema permits unordered arrays where contracts require ordering | Medium | Consumers may accept non-canonical objects |
+| Artifact schema fields are structurally unconstrained placeholders | Medium | Invalid semantic artifacts can validate |
+| CI depends on external dependency installation | Medium | Reproducibility depends on package index access |
+| Test classes after `unittest.main()` are missed when running file directly | Low | Discovery works, direct script execution under-runs |
+
+## 12. List of All Findings
+
+### F-001 — No executable compiler pipeline exists
+
+- Severity: Critical
+- Evidence: README states the implemented surface is schema-only and no compiler engine, CLI, proof system, authority module, runtime hook, or execution surface is included.
+- Root cause: Milestone 1 intentionally freezes contracts before implementation.
+- Recommended resolution: Do not describe the repository as an executable reference implementation until parser, AST, IR, reachability, projection, predicate, classifier, and artifact emission are implemented and tested end-to-end.
+
+### F-002 — Core mathematical predicate is specified but not implemented
+
+- Severity: Critical
+- Evidence: SPEC defines `Dependency(S, W) ⇔ Reach(W | ¬S) = ∅`; tests only compare dependency fixture fields and never execute projection or reachability.
+- Root cause: Static conformance fixture phase precedes evaluator implementation.
+- Recommended resolution: Add an executable evaluator only after freezing classification aggregation semantics; compare generated outputs byte-for-byte to fixtures.
+
+### F-003 — Classification semantics are incomplete for artifact production
+
+- Severity: High
+- Evidence: SPEC defines `VALID`, `DEGRADED`, and `NULL`, but dependency contract explicitly says aggregation into these classifications remains a gap.
+- Root cause: Downstream compiler artifact semantics are deferred.
+- Recommended resolution: Formalize classification transition rules and prove/fixture-test mutual exclusivity, exhaustiveness, and invalid-input rejection.
+
+### F-004 — Artifact schema validates placeholders rather than semantic artifacts
+
+- Severity: High
+- Evidence: Artifact schema requires broad fields such as `reachability_graph`, `dependency_lattice`, and `redundancy_map`, but only constrains them as generic object/array fields.
+- Root cause: Compiler output semantics are reserved before implementation.
+- Recommended resolution: Tighten artifact subschemas once the artifact contract is frozen; include generated artifact fixtures.
+
+### F-005 — JSON Schema validation silently skips in environments without dependencies
+
+- Severity: Medium
+- Evidence: Tests set `Draft202012Validator = None` when `jsonschema` is absent and many schema test classes are decorated with `skipIf`; local test run reported 27 skipped tests.
+- Root cause: Optional import fallback prioritizes lightweight local runs over fail-closed validation.
+- Recommended resolution: In CI and release validation, fail if schema dependencies are unavailable; reserve skips only for explicitly documented minimal smoke mode.
+
+### F-006 — Semantic topology validation is a test helper, not implementation
+
+- Severity: Medium
+- Evidence: `validate_topology` is defined inside `tests/schema_tests.py` and returns string errors, while documentation describes semantic validation as a layered contract.
+- Root cause: Milestone 1 lacks product modules.
+- Recommended resolution: When implementation begins, move semantic validation into a versioned product module with diagnostic-code outputs, not free-form strings.
+
+### F-007 — Schema cannot enforce canonical ordering required by determinism contracts
+
+- Severity: Medium
+- Evidence: Schemas define arrays with `uniqueItems`/items, but deterministic lexical ordering is enforced by tests against fixtures, not by schema itself.
+- Root cause: JSON Schema is insufficient for some canonical-order invariants.
+- Recommended resolution: Keep schemas for shape but require canonicalization/semantic validators for ordering before accepting compiler outputs.
+
+### F-008 — Projection schema permits candidate arrays with duplicates despite projection contract rejecting duplicates
+
+- Severity: Medium
+- Evidence: Projection contract says duplicate candidates are rejected; projection schema's `candidate_set` lacks `uniqueItems: true`.
+- Root cause: Rejection is intended as semantic validation rather than schema validation.
+- Recommended resolution: Either add `uniqueItems: true` if duplicates are shape-invalid, or document clearly that duplicate rejection is semantic and ensure the future validator emits `PROJECTION.DUPLICATE_CANDIDATE` deterministically.
+
+### F-009 — Reachability diagnostic codes are open-ended while contract names one canonical code
+
+- Severity: Low
+- Evidence: Reachability schema permits any `REACHABILITY.[A-Z0-9_]+` code; contract names `REACHABILITY.UNREACHABLE_TARGET` as canonical.
+- Root cause: Schema allows future extension without an explicit registry.
+- Recommended resolution: Add a diagnostic registry or schema enum for v1 codes before claiming complete diagnostic coverage.
+
+### F-010 — Direct execution of `tests/schema_tests.py` can miss projection tests
+
+- Severity: Low
+- Evidence: `if __name__ == "__main__": unittest.main()` appears before `ProjectionContractTests`; unittest discovery still finds the class, but direct script execution runs before that class is defined.
+- Root cause: Test class appended after the direct-run entrypoint.
+- Recommended resolution: Move the `if __name__ == "__main__"` block to the end of the file.
+
+### F-011 — CI is not fully hermetic
+
+- Severity: Medium
+- Evidence: CI installs `requirements-dev.txt` from the network before running tests.
+- Root cause: No dependency lock/vendor/cache strategy.
+- Recommended resolution: Add reproducible dependency locking or document network dependency as acceptable for CI only.
+
+### F-012 — Documentation terminology can overstate implementation maturity
+
+- Severity: Medium
+- Evidence: README calls the repository a reference implementation while also stating implementation begins only after specification stabilization.
+- Root cause: Product identity and milestone status are both emphasized.
+- Recommended resolution: Clarify "reference implementation" as "reference contract suite" until executable compiler layers exist.
+
+## 13. Final Assessment
+
+### What is formally correct?
+
+- The contract-level graph model for component-removal projection and directed reachability is coherent.
+- The dependency predicate definition is mathematically clear.
+- Structural/non-governance boundaries are consistently documented.
+- Deterministic serialization and hash boundaries are specified for major result objects.
+
+### What is partially implemented?
+
+- Schemas, fixtures, hash vectors, static diagnostic vectors, and conformance tests.
+- A test-only semantic topology validator.
+- Boundary checks for excluded runtime/governance/proof/execution surfaces.
+
+### What is missing?
+
+- Parser, AST builder, IR normalizer, reachability engine, complement projection engine, dependency predicate evaluator, classification aggregator, artifact emitter, CLI/API, executable semantic validator, and end-to-end generated conformance tests.
+
+### What is redundant?
+
+- Some static contract helper logic in tests duplicates future implementation responsibilities, especially canonicalization and validation. This is acceptable for Milestone 1 but should not become divergent shadow implementation.
+
+### What should be removed?
+
+- Nothing should be removed for Milestone 1 correctness. The only cleanup candidate is relocating the direct-run `unittest.main()` block to the end of `tests/schema_tests.py` before relying on direct file execution.
+
+### What requires additional proofs?
+
+- Classification soundness/completeness.
+- Equivalence of generated IR from equivalent ASTs.
+- Reachability correctness and termination.
+- Projection induced-subgraph correctness.
+- Dependency predicate soundness with respect to reachability over projected IR.
+- Artifact hash and diagnostic replay stability.
+
+### What blocks publication?
+
+- Publication as a schema/specification milestone: no blocker, subject to dependency-available CI validation.
+- Publication as a mathematical/compiler reference implementation: blocked by missing executable compiler pipeline and missing classification/artifact semantics.
+
+### What blocks production readiness?
+
+- Absence of all executable compiler stages.
+- Lack of generated end-to-end artifacts.
+- Missing fail-closed dependency handling in local validation.
+- Incomplete artifact/classification formalization.
+
+### Differentiated conclusion
+
+- Mathematical correctness: plausible at the contract level; unproven end-to-end.
+- Implementation correctness: only schema/fixture/test helpers can be assessed; compiler implementation is absent.
+- Engineering quality: good boundary discipline and deterministic-contract hygiene, but validation is not fail-closed without dependencies.
+- Research completeness: foundational definitions exist; proofs and executable semantics are incomplete.
