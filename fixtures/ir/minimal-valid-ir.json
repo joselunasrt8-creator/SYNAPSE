@@ -1,6 +1,7 @@
 {
   "schema_version": "dependency-algebra.ir.v1",
   "topology_id": "minimal-valid",
+  "normalized_ir_hash": "sha256:82b0a2e5d14644028f130161805e9b94047bb5e2a97cb92eab6a14f51ce8ade2",
   "components": [
     { "id": "api", "type": "service", "metadata": { "tier": "app" }, "source": { "source_id": "api" } },
     { "id": "client", "type": "entry", "metadata": { "tier": "edge" }, "source": { "source_id": "client" } },

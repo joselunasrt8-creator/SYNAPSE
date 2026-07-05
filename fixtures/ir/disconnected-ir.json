@@ -1,6 +1,7 @@
 {
   "schema_version": "dependency-algebra.ir.v1",
   "topology_id": "disconnected",
+  "normalized_ir_hash": "sha256:73e0649b42eb509dd4801ba2ab6a5eb1bc8436b047e6fa4cdb136158faf5beb9",
   "components": [ { "id": "a", "source": { "source_id": "a" } }, { "id": "b", "source": { "source_id": "b" } }, { "id": "isolated", "source": { "source_id": "isolated" } } ],
   "edges": [ { "id": "a-b", "from": "a", "to": "b", "source": { "source_id": "a-b" } } ],
   "adjacency": { "a": [ { "edge_id": "a-b", "component_id": "b" } ], "b": [], "isolated": [] },
