@@ -1,8 +1,46 @@
-# dependency-algebra
+# SYNAPSE
 
-Structural Compiler for Dependency Analysis.
+### Structural Analysis Engine & Framework
 
-`dependency-algebra` is a planning-first repository for a deterministic structural compiler. Its responsibility is to convert topology descriptions into reproducible dependency-analysis artifacts once the specification is frozen.
+> **From Questions to Trusted Insight Across Any System.**
+
+---
+
+## Current Repository
+
+**dependency-algebra** is the reference implementation of the Dependency Algebra Compiler—the first structural compiler within the SYNAPSE framework.
+
+Its responsibility is to transform topology descriptions into deterministic structural-analysis artifacts through reproducible compiler passes.
+
+Current status: **planning-first**, with implementation beginning only after specification stabilization.
+
+---
+
+## Vision
+
+SYNAPSE is a general-purpose structural analysis framework.
+
+Its purpose is to transform topology into deterministic insight through formal mathematical models, compiler architecture, and reusable analysis engines.
+
+Long-term evolution:
+
+```text
+Question
+    ↓
+Mathematical Model
+    ↓
+Formal Specification
+    ↓
+Compiler
+    ↓
+Structural Analysis Engine
+    ↓
+Applications
+```
+
+Dependency Algebra is the first formalism implemented within this framework.
+
+---
 
 ## Boundary
 
@@ -16,7 +54,8 @@ Dependency Algebra owns structural analysis only:
 - dependency predicate semantics
 - structural classification semantics
 - deterministic compiler artifact schemas
-- canonical fixtures and conformance tests
+- canonical fixtures
+- conformance tests
 
 Dependency Algebra does **not** own:
 
@@ -29,11 +68,15 @@ Dependency Algebra does **not** own:
 - mutation execution
 - external-state mutation
 
-`VALID`, `DEGRADED`, and `NULL` are structural classifications only. They are not governance decisions, execution authorizations, runtime proofs, or legitimacy results.
+`VALID`, `DEGRADED`, and `NULL` are **structural classifications only**. They are **not** governance decisions, execution authorizations, runtime proofs, or legitimacy results.
 
-## Current milestone
+---
 
-This repository is in **Milestone 1: Frozen Schemas and Canonical Fixtures**. The implemented surface is intentionally schema-only:
+## Current Milestone
+
+This repository is currently in **Milestone 1 — Frozen Schemas and Canonical Fixtures**.
+
+The implemented surface is intentionally schema-only:
 
 - `SPEC.md`
 - `BOUNDARY.md`
@@ -44,38 +87,65 @@ This repository is in **Milestone 1: Frozen Schemas and Canonical Fixtures**. Th
 
 No compiler engine, CLI, GitHub Action, ContinuityOS integration, proof system, authority module, runtime hook, or execution surface is included in this milestone.
 
-## Canonical pipeline
+---
 
-The future compiler pipeline is:
+## Canonical Compiler Pipeline
 
 ```text
 Topology JSON
-  ↓
+        ↓
 Parser
-  ↓
+        ↓
 AST
-  ↓
+        ↓
 IR
-  ↓
+        ↓
 Reachability
-  ↓
+        ↓
 Complement Projection
-  ↓
+        ↓
 Dependency Predicate
-  ↓
+        ↓
 Compiler Artifact
 ```
 
-The current repository freezes the contracts needed before implementing that pipeline.
+This repository freezes the contracts required before implementing that compiler.
+
+---
+
+## Long-Term Architecture
+
+```text
+Topology
+        ↓
+Structural Compiler
+        ↓
+Structural Analysis Engine
+        ↓
+Visualization
+        ↓
+Optimization
+        ↓
+Simulation
+```
+
+The compiler is one layer within the broader SYNAPSE framework.
+
+---
 
 ## Validation
 
-Validation is intentionally layered:
+Validation is intentionally layered.
 
-- JSON Schema validation is the structural contract for schema documents and topology fixture shape.
-- The custom semantic validator is the graph integrity contract for deterministic diagnostics such as duplicate identifiers and references to unknown components.
+**Structural validation**
 
-Run the conformance tests with:
+- JSON Schema validation defines the structural contract for topology and artifact schemas.
+
+**Semantic validation**
+
+- Deterministic semantic validation enforces graph integrity, including duplicate identifiers, unknown component references, and canonical diagnostics.
+
+Run the conformance suite:
 
 ```bash
 python -m unittest discover -s tests -p '*_tests.py'
