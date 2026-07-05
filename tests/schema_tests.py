@@ -1,18 +1,43 @@
+import importlib.util
 import json
 import re
 import unittest
 from pathlib import Path
+
+if importlib.util.find_spec("jsonschema") is None:
+    Draft202012Validator = None
+    RefResolver = None
+    ValidationError = Exception
+else:
+    from jsonschema import Draft202012Validator, RefResolver, ValidationError
 
 ROOT = Path(__file__).resolve().parents[1]
 FIXTURES = ROOT / "fixtures"
 SCHEMAS = ROOT / "schemas"
 CLASSIFICATIONS = {"VALID", "DEGRADED", "NULL"}
 ID_RE = re.compile(r"^[a-zA-Z0-9_.-]+$")
+SCHEMA_PATHS = [
+    SCHEMAS / "topology.schema.json",
+    SCHEMAS / "artifact.schema.json",
+    SCHEMAS / "classification.schema.json",
+]
+TOPOLOGY_SCHEMA_PATH = SCHEMAS / "topology.schema.json"
+CLASSIFICATION_SCHEMA_PATH = SCHEMAS / "classification.schema.json"
 
 
 def load_json(path: Path):
     with path.open("r", encoding="utf-8") as handle:
         return json.load(handle)
+
+
+def schema_store():
+    return {load_json(path)["$id"]: load_json(path) for path in SCHEMA_PATHS}
+
+
+def json_schema_validator(path: Path):
+    schema = load_json(path)
+    resolver = RefResolver.from_schema(schema, store=schema_store())
+    return Draft202012Validator(schema, resolver=resolver)
 
 
 def validate_topology(doc):
@@ -68,14 +93,47 @@ def validate_topology(doc):
     return errors
 
 
-class SchemaContractTests(unittest.TestCase):
-    def test_schema_documents_are_json(self):
-        for path in sorted(SCHEMAS.glob("*.schema.json")):
+@unittest.skipIf(Draft202012Validator is None, "jsonschema is not installed")
+class JsonSchemaContractTests(unittest.TestCase):
+    def test_schema_documents_are_valid_draft_2020_12_schemas(self):
+        for path in SCHEMA_PATHS:
+            with self.subTest(path=path):
+                schema = load_json(path)
+                self.assertEqual(schema["$schema"], "https://json-schema.org/draft/2020-12/schema")
+                Draft202012Validator.check_schema(schema)
+
+    def test_classification_schema_accepts_only_structural_classifications(self):
+        validator = json_schema_validator(CLASSIFICATION_SCHEMA_PATH)
+        for classification in sorted(CLASSIFICATIONS):
+            with self.subTest(classification=classification):
+                validator.validate(classification)
+        for classification in ["UNKNOWN", "valid", "", None, {"classification": "VALID"}]:
+            with self.subTest(classification=classification):
+                with self.assertRaises(ValidationError):
+                    validator.validate(classification)
+
+    def test_canonical_topology_fixtures_pass_json_schema_contract(self):
+        paths = sorted((FIXTURES / "valid").glob("*.json")) + sorted((FIXTURES / "degraded").glob("*.json")) + sorted((FIXTURES / "null").glob("*.json")) + sorted((FIXTURES / "determinism").glob("*.json"))
+        self.assertGreaterEqual(len(paths), 5)
+        validator = json_schema_validator(TOPOLOGY_SCHEMA_PATH)
+        for path in paths:
+            with self.subTest(path=path):
+                validator.validate(load_json(path))
+
+    def test_semantic_invalid_fixtures_can_pass_json_schema_shape(self):
+        validator = json_schema_validator(TOPOLOGY_SCHEMA_PATH)
+        for path in [
+            FIXTURES / "invalid" / "unknown-node-reference.json",
+            FIXTURES / "invalid" / "duplicate-identifiers.json",
+        ]:
             with self.subTest(path=path):
                 doc = load_json(path)
-                self.assertEqual(doc["$schema"], "https://json-schema.org/draft/2020-12/schema")
+                validator.validate(doc)
+                self.assertNotEqual(validate_topology(doc), [])
 
-    def test_valid_and_determinism_fixtures_pass_contract(self):
+
+class SemanticTopologyValidationTests(unittest.TestCase):
+    def test_valid_and_determinism_fixtures_pass_semantic_contract(self):
         paths = sorted((FIXTURES / "valid").glob("*.json")) + sorted((FIXTURES / "degraded").glob("*.json")) + sorted((FIXTURES / "null").glob("*.json")) + sorted((FIXTURES / "determinism").glob("*.json"))
         self.assertGreaterEqual(len(paths), 5)
         for path in paths:
@@ -92,7 +150,6 @@ class SchemaContractTests(unittest.TestCase):
                 "workload broken references unknown target 'missing'",
             ],
         )
-
 
     def test_duplicate_identifier_fixture_fails_deterministically(self):
         path = FIXTURES / "invalid" / "duplicate-identifiers.json"

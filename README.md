@@ -70,6 +70,11 @@ The current repository freezes the contracts needed before implementing that pip
 
 ## Validation
 
+Validation is intentionally layered:
+
+- JSON Schema validation is the structural contract for schema documents and topology fixture shape.
+- The custom semantic validator is the graph integrity contract for deterministic diagnostics such as duplicate identifiers and references to unknown components.
+
 Run the conformance tests with:
 
 ```bash
