@@ -1,38 +1,33 @@
-"""Analysis orchestration for normalized Dependency Algebra IR.
-
-The engine coordinates the dedicated analysis modules without owning graph
-algorithms or dependency semantics: reachability.py performs deterministic
-traversal, projection.py performs complement projection, predicate.py evaluates
-one workload dependency predicate, and classification.py aggregates workload
-results. Public compiler behavior, schemas, and hash boundaries are assembled
-here unchanged.
-"""
+"""Analysis orchestration for normalized Dependency Algebra IR."""
 
 from __future__ import annotations
 
 from typing import Any
 
-from dependency_algebra.classification import classify
-from dependency_algebra.predicate import dependency_result
-from dependency_algebra.reachability import reachability
+from dependency_algebra.classification import classify_result
+from dependency_algebra.ir import CanonicalIR
+from dependency_algebra.predicate import evaluate as evaluate_dependency
+from dependency_algebra.reachability import evaluate as evaluate_reachability
 from dependency_algebra.serialization import sha256_digest
 
 
 def analyze(ir: dict[str, Any], max_depth: int | None = None) -> dict[str, Any]:
     """Analyze normalized IR and return deterministic dependency results."""
 
-    reachability_result = reachability(ir, max_depth=max_depth)
-    dependencies = [dependency_result(ir, workload, max_depth=max_depth) for workload in ir["workloads"]]
-    classification = classify(dependencies)
+    canonical_ir = CanonicalIR.from_dict(ir)
+    reachability_result = evaluate_reachability(canonical_ir, max_depth=max_depth)
+    dependencies = tuple(
+        evaluate_dependency(canonical_ir, workload, max_depth=max_depth)
+        for workload in canonical_ir.workloads
+    )
+    classification = classify_result(dependencies)
     result = {
         "schema_version": "dependency-algebra.analysis.v1",
-        "topology_id": ir["topology_id"],
-        "normalized_ir_hash": ir["normalized_ir_hash"],
-        "classification": classification,
-        "reachability": reachability_result,
-        "dependencies": dependencies,
+        "topology_id": canonical_ir.topology_id,
+        "normalized_ir_hash": canonical_ir.normalized_ir_hash,
+        "classification": classification.classification,
+        "reachability": reachability_result.to_dict(),
+        "dependencies": [dependency.to_dict() for dependency in dependencies],
     }
-    # Hash boundary: canonical analysis result payload as currently emitted,
-    # excluding dependency_result_hash because it is added only after hashing.
     result["dependency_result_hash"] = sha256_digest(result)
     return result

@@ -112,8 +112,8 @@ def _normalize(document: dict[str, Any], source_id: str) -> dict[str, Any]:
     components = sorted(({"id": c["id"], **({"type": c["type"]} if "type" in c else {}), **({"metadata": c.get("metadata", c.get("labels", {}))} if c.get("metadata", c.get("labels", {})) else {}), "source": {"source_id": source_id}} for c in document["components"]), key=lambda c: c["id"])
     edges = sorted(({"id": e["id"], "from": e["from"], "to": e["to"], **({"metadata": e.get("metadata", e.get("labels", {}))} if e.get("metadata", e.get("labels", {})) else {}), "source": {"source_id": source_id}} for e in document["edges"]), key=lambda e: e["id"])
     component_ids = [c["id"] for c in components]
-    adjacency = {cid: [] for cid in component_ids}
-    reverse = {cid: [] for cid in component_ids}
+    adjacency: dict[str, list[dict[str, str]]] = {cid: [] for cid in component_ids}
+    reverse: dict[str, list[dict[str, str]]] = {cid: [] for cid in component_ids}
     for edge in edges:
         adjacency[edge["from"]].append({"edge_id": edge["id"], "component_id": edge["to"]})
         reverse[edge["to"]].append({"edge_id": edge["id"], "component_id": edge["from"]})
