@@ -7,17 +7,30 @@ semantic decisions, computes no hashes, and performs no classification.
 
 from __future__ import annotations
 
-from typing import Any
+from dependency_algebra.ir import CanonicalIR, ProjectedIR, Workload
 
 
-def complement_projection(ir: dict[str, Any], workload: dict[str, Any]) -> dict[str, Any]:
+def project(ir: CanonicalIR, workload: Workload) -> ProjectedIR:
     """Return the workload complement projection as structural traversal inputs."""
 
-    candidates = set(workload["candidate_set"])
+    candidates = frozenset(workload.candidate_set)
     adjacency = {
-        component["id"]: [edge for edge in ir["adjacency"][component["id"]] if edge["component_id"] not in candidates]
-        for component in ir["components"]
-        if component["id"] not in candidates
+        component_id: tuple(edge for edge in ir.adjacency[component_id] if edge.component_id not in candidates)
+        for component_id in ir.components
+        if component_id not in candidates
     }
-    roots = [root for root in workload["roots"] if root not in candidates]
-    return {"removed": candidates, "adjacency": adjacency, "roots": roots}
+    roots = tuple(root for root in workload.roots if root not in candidates)
+    return ProjectedIR(removed=candidates, adjacency=adjacency, roots=roots)
+
+
+def complement_projection(ir, workload):
+    """Backward-compatible dict projection wrapper."""
+
+    canonical = ir if isinstance(ir, CanonicalIR) else CanonicalIR.from_dict(ir)
+    canonical_workload = workload if isinstance(workload, Workload) else Workload.from_dict(workload)
+    projection = project(canonical, canonical_workload)
+    return {
+        "removed": set(projection.removed),
+        "adjacency": {key: [edge.to_dict() for edge in edges] for key, edges in projection.adjacency.items()},
+        "roots": list(projection.roots),
+    }
