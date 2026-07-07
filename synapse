@@ -1,0 +1,7 @@
+#!/usr/bin/env python3
+"""Repository-local SYNAPSE CLI entry point."""
+
+from dependency_algebra.cli import main
+
+if __name__ == "__main__":
+    raise SystemExit(main())
