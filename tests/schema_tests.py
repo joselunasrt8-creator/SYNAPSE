@@ -153,6 +153,11 @@ class JsonSchemaContractTests(unittest.TestCase):
             "diagnostics": [],
             "warnings": [],
             "errors": [],
+            "provenance": {
+                "source_id": "schema-test",
+                "pipeline": ["parse_topology", "validate_and_normalize", "analyze", "emit_artifact"],
+                "analysis_result_hash": "sha256:" + "3" * 64,
+            },
         }
         validator.validate(artifact)
 

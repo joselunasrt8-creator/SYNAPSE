@@ -34,7 +34,7 @@ SYNAPSE has reached the **architecture-closure compiler milestone** for its firs
 - thin CLI / argparse adapter
 - compatibility APIs
 
-The implemented surface remains a structural compiler and analysis boundary. It does not add GitHub Actions, ContinuityOS integration, proof systems, authority modules, runtime hooks, governance surfaces, policy surfaces, or external-state mutation surfaces.
+The implemented surface remains a structural compiler facade, analysis engine, canonical serialization utilities, and a thin CLI harness. It does not add GitHub Actions, ContinuityOS integration, a proof system, authority module, runtime hook, governance surface, policy surface, or external-state mutation surface.
 
 ---
 
@@ -137,6 +137,29 @@ Simulation
 The current repository implements the compiler layer of this architecture. Visualization, optimization, simulation, runtime policy, authority propagation, and external-state mutation remain outside this repository boundary.
 
 ---
+
+
+## SYNAPSE CLI
+
+Issue #57 owns the active CLI implementation surface. The stable command shape is:
+
+```bash
+python -m dependency_algebra.cli compile --input fixtures/basic.json --output out/artifact.json
+```
+
+The command is exposed with `prog` name `synapse`; packaging a console script named `synapse` is intentionally deferred to the distribution and release issue. The CLI compiles canonical topology JSON into the deterministic structural evidence artifact and writes no success output to stdout or stderr. Diagnostics are canonical machine-readable JSON on stderr.
+
+Stable exit codes:
+
+| Code | Meaning |
+| ---: | --- |
+| 0 | Success |
+| 1 | Input, schema, or validation failure |
+| 2 | Compiler semantic failure |
+| 3 | Artifact emission failure |
+| 4 | Unexpected runtime failure |
+
+The CLI never mutates input files and does not perform cross-repository conformance, packaging, release, publishing, or GitHub Action integration.
 
 ## Validation
 
