@@ -49,6 +49,9 @@ def main():
         source_id=fixture["fixture_id"],
     )
 
+    dependency = artifact["dependency_lattice"][0]
+    is_dependency = dependency["dependency"]
+
     evidence = {
         "repository": "SYNAPSE",
         "repository_url": "https://github.com/joselunasrt8-creator/SYNAPSE",
@@ -73,8 +76,29 @@ def main():
         "provenance": {
             "compiler_version": artifact["compiler_version"],
         },
+        "dependency_relations": [
+            {
+                "candidate_set": dependency["candidate_set"],
+                "holds": is_dependency,
+                "predicate": "removal_eliminates_root_to_target_reachability",
+            }
+        ],
+        "structural_invariants": {
+            "reachable_before_removal": True,
+            "reachable_after_removal": not is_dependency,
+            "removed_components": dependency["candidate_set"],
+        },
+        "required_diagnostics": [
+            {
+                "code": "DEPENDENCY_PREDICATE_EVALUATED",
+                "level": "info",
+            }
+        ],
+        "proof_obligations": {
+            "root_to_target_reachability_eliminated": is_dependency,
+        },
         "canonical_outputs": {
-            "artifact": artifact,
+            "is_dependency": is_dependency,
         },
     }
 
