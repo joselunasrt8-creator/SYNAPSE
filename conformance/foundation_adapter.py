@@ -8,6 +8,7 @@ import sys
 from pathlib import Path
 
 from dependency_algebra import compile_artifact
+from conformance.research_objects.dependency_predicate import dependency_projection
 
 def canonical_json(data):
     return json.dumps(data, sort_keys=True, separators=(",", ":"))
@@ -49,8 +50,7 @@ def main():
         source_id=fixture["fixture_id"],
     )
 
-    dependency = artifact["dependency_lattice"][0]
-    is_dependency = dependency["dependency"]
+    projection = dependency_projection(artifact)
 
     evidence = {
         "repository": "SYNAPSE",
@@ -76,30 +76,7 @@ def main():
         "provenance": {
             "compiler_version": artifact["compiler_version"],
         },
-        "dependency_relations": [
-            {
-                "candidate_set": dependency["candidate_set"],
-                "holds": is_dependency,
-                "predicate": "removal_eliminates_root_to_target_reachability",
-            }
-        ],
-        "structural_invariants": {
-            "reachable_before_removal": True,
-            "reachable_after_removal": not is_dependency,
-            "removed_components": dependency["candidate_set"],
-        },
-        "required_diagnostics": [
-            {
-                "code": "DEPENDENCY_PREDICATE_EVALUATED",
-                "level": "info",
-            }
-        ],
-        "proof_obligations": {
-            "root_to_target_reachability_eliminated": is_dependency,
-        },
-        "canonical_outputs": {
-            "is_dependency": is_dependency,
-        },
+        **projection,
     }
 
     Path(a.output).write_text(
