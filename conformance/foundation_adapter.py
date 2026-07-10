@@ -10,6 +10,7 @@ from pathlib import Path
 from dependency_algebra import compile_artifact
 from conformance.research_objects.registry import get_handler
 import conformance.research_objects.dependency_predicate
+import conformance.research_objects.reachability_profile
 
 
 def canonical_json(data):
@@ -19,22 +20,29 @@ def canonical_json(data):
 def topology_from_fixture(fixture):
     g = fixture["input"]["graph"]
     w = fixture["input"]["workload"]
+    nodes = sorted(g["nodes"])
+    roots = sorted(w["roots"])
+    targets = sorted(w["targets"])
+    candidate_set = sorted(w.get("candidate_component_set", nodes))
 
     return {
         "schema_version": "dependency-algebra.topology.v1",
         "topology_id": "paper1-dependency-predicate",
-        "components": [{"id": n} for n in sorted(g["nodes"])],
+        "components": [{"id": n} for n in nodes],
         "edges": [
             {"id": f"e{i}", "from": s, "to": t}
             for i, (s, t) in enumerate(sorted(g["edges"]))
         ],
-        "workloads": [{
-            "id": "paper1-dependency-workload",
-            "roots": sorted(w["roots"]),
-            "target": w["targets"][0],
-            "candidate_set": sorted(w["candidate_component_set"]),
-            "expected_classification": "VALID",
-        }],
+        "workloads": [
+            {
+                "id": "paper1-dependency-workload" if len(targets) == 1 else f"paper1-reachability-profile-{target}",
+                "roots": roots,
+                "target": target,
+                "candidate_set": candidate_set,
+                "expected_classification": "VALID",
+            }
+            for target in targets
+        ],
     }
 
 

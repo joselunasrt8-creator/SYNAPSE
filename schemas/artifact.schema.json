@@ -8,6 +8,7 @@
     "artifact_schema_version",
     "source_topology_schema_version",
     "compiler_version",
+    "package_version",
     "input_hash",
     "normalized_ir_hash",
     "artifact_hash",
@@ -31,6 +32,9 @@
       "const": "dependency-algebra.topology.v1"
     },
     "compiler_version": {
+      "type": "string"
+    },
+    "package_version": {
       "type": "string"
     },
     "input_hash": {

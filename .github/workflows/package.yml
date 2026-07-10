@@ -29,6 +29,7 @@ jobs:
           python -m pip install dist/*.whl
           synapse --help
           synapse compile --input fixtures/basic.json --output /tmp/synapse-artifact.json
+          python -c "import synapse; print(synapse.__version__)"
           python -c "import dependency_algebra; print(dependency_algebra.__version__)"
 
       - name: Run tests

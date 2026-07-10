@@ -1,0 +1,60 @@
+{
+  "fixture_id": "canonical-reachability-profile",
+  "research_object_id": "concept.structural-observation.reachability-profile",
+  "deterministic_timestamp": "2026-01-01T00:00:00Z",
+  "input": {
+    "graph": {
+      "nodes": ["isolated", "root-a", "root-b", "target-x", "target-y"],
+      "edges": [
+        ["root-a", "target-x"],
+        ["root-b", "target-y"]
+      ]
+    },
+    "workload": {
+      "roots": ["root-a", "root-b"],
+      "targets": ["target-x", "target-y"]
+    }
+  },
+  "expected_semantics": {
+    "canonical_outputs": {
+      "reachable_pairs": [
+        {"root": "root-a", "target": "target-x"},
+        {"root": "root-b", "target": "target-y"}
+      ],
+      "unreachable_pairs": [
+        {"root": "root-a", "target": "target-y"},
+        {"root": "root-b", "target": "target-x"}
+      ],
+      "root_coverage": [
+        {"root": "root-a", "reachable_target_count": 1, "target_count": 2},
+        {"root": "root-b", "reachable_target_count": 1, "target_count": 2}
+      ],
+      "target_coverage": [
+        {"target": "target-x", "reachable_root_count": 1, "root_count": 2},
+        {"target": "target-y", "reachable_root_count": 1, "root_count": 2}
+      ],
+      "reachability_density": 0.5
+    },
+    "structural_metrics": {
+      "root_count": 2,
+      "target_count": 2,
+      "pair_count": 4,
+      "reachable_pair_count": 2,
+      "unreachable_pair_count": 2
+    },
+    "structural_invariants": {
+      "all_pairs_classified": true,
+      "reachable_unreachable_disjoint": true,
+      "reachable_unreachable_union_complete": true,
+      "root_coverage_counts_consistent": true,
+      "target_coverage_counts_consistent": true,
+      "pair_counts_consistent": true,
+      "density_consistent": true
+    },
+    "required_diagnostics": [
+      {"code": "REACHABILITY_PROFILE_EVALUATED", "level": "info"},
+      {"code": "REACHABILITY_INVARIANTS_VERIFIED", "level": "info"},
+      {"code": "CANONICAL_ORDERING_CONFIRMED", "level": "info"}
+    ]
+  }
+}

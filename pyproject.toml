@@ -17,3 +17,4 @@ synapse = "dependency_algebra.cli:main"
 
 [tool.setuptools]
 packages = ["dependency_algebra"]
+py-modules = ["synapse"]

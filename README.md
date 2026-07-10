@@ -32,6 +32,7 @@ SYNAPSE has reached the **architecture-closure compiler milestone** for its firs
 - serialization boundary
 - deterministic hash receipts
 - thin CLI / argparse adapter
+- installable console script packaging
 - compatibility APIs
 
 The implemented surface remains a structural compiler facade, analysis engine, canonical serialization utilities, and a thin CLI harness. It does not add GitHub Actions, ContinuityOS integration, a proof system, authority module, runtime hook, governance surface, policy surface, or external-state mutation surface.
@@ -139,15 +140,33 @@ The current repository implements the compiler layer of this architecture. Visua
 ---
 
 
+## Installation
+
+Install SYNAPSE from the repository root with modern Python packaging:
+
+```bash
+pip install .
+```
+
+After installation, the `synapse` console script and importable library surfaces are available.
+
 ## SYNAPSE CLI
 
-Issue #57 owns the active CLI implementation surface. The stable command shape is:
+Issue #57 owns the active CLI behavior surface. Issue #79 owns packaging and release readiness for the installed command-line and library surfaces. Issue #83 owns foundation conformance and remains outside this packaging boundary.
+
+The stable installed command shape is:
+
+```bash
+synapse compile --input fixtures/basic.json --output out/artifact.json
+```
+
+The repository-local module invocation remains available for development:
 
 ```bash
 python -m dependency_algebra.cli compile --input fixtures/basic.json --output out/artifact.json
 ```
 
-The command is exposed with `prog` name `synapse`; packaging a console script named `synapse` is intentionally deferred to the distribution and release issue. The CLI compiles canonical topology JSON into the deterministic structural evidence artifact and writes no success output to stdout or stderr. Diagnostics are canonical machine-readable JSON on stderr.
+The CLI compiles canonical topology JSON into the deterministic structural evidence artifact and writes no success output to stdout or stderr. Diagnostics are canonical machine-readable JSON on stderr.
 
 Stable exit codes:
 
@@ -160,6 +179,28 @@ Stable exit codes:
 | 4 | Unexpected runtime failure |
 
 The CLI never mutates input files and does not perform cross-repository conformance, packaging, release, publishing, or GitHub Action integration.
+
+## Library Usage
+
+Use the compatibility `synapse` facade for the SYNAPSE-branded import surface:
+
+```python
+from synapse import compile_topology, __version__
+
+artifact = compile_topology(open("fixtures/basic.json", "rb").read(), source_id="basic")
+print(__version__)
+print(artifact["artifact_hash"])
+```
+
+Existing Dependency Algebra imports remain supported:
+
+```python
+from dependency_algebra import compile_artifact, __version__
+
+artifact = compile_artifact(open("fixtures/basic.json", "rb").read(), source_id="basic")
+```
+
+The top-level `synapse` module is a thin compatibility facade over `dependency_algebra`; it does not duplicate compiler logic or add runtime, governance, policy, authority, execution-eligibility, or cross-repository conformance behavior.
 
 ## Validation
 

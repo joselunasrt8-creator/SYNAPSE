@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dependency-algebra.local/schemas/canonical-reachability-profile.schema.json",
+  "title": "Canonical Reachability Profile Fixture",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["fixture_id", "research_object_id", "input", "expected_semantics"],
+  "properties": {
+    "research_object_id": {"const": "concept.structural-observation.reachability-profile"}
+  }
+}
