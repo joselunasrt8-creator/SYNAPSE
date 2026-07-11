@@ -11,6 +11,7 @@ if __package__ in {None, ""}:
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from dependency_algebra import compile_artifact
+from conformance.research_objects.discovery import discover
 from conformance.research_objects.registry import get_handler
 
 
@@ -126,6 +127,8 @@ def main():
         source_id=fixture["fixture_id"],
     )
     artifact["canonical_context"] = canonical_context_from_fixture(fixture)
+
+    discover()
 
     projection = get_handler(
         fixture["research_object_id"]
