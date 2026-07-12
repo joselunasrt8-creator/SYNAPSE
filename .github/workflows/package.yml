@@ -31,5 +31,8 @@ jobs:
           synapse compile --input fixtures/basic.json --output /tmp/synapse-artifact.json
           python -c "import dependency_algebra; print(dependency_algebra.__version__)"
 
+      - name: Install test dependencies
+        run: python -m pip install -r requirements-dev.txt
+
       - name: Run tests
         run: python -m unittest discover -s tests -p '*_tests.py'
