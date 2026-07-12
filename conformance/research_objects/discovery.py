@@ -12,7 +12,12 @@ def discover() -> None:
     for _, module_name, ispkg in pkgutil.iter_modules(research_objects.__path__):
         if ispkg:
             continue
-        if module_name in {"registry", "discovery", "__init__"}:
+        if module_name in {
+            "__init__",
+            "registry",
+            "projection",
+            "discovery",
+        }:
             continue
         importlib.import_module(
             f"{research_objects.__name__}.{module_name}"

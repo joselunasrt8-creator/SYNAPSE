@@ -6,11 +6,13 @@ import importlib
 import pkgutil
 from pathlib import Path
 
-_HANDLERS = {}
+from conformance.research_objects.projection import ProjectionHandler
+
+_HANDLERS: dict[str, ProjectionHandler] = {}
 _DISCOVERED = False
 
 
-def register(research_object_id, handler):
+def register(research_object_id: str, handler: ProjectionHandler) -> None:
     _HANDLERS[research_object_id] = handler
 
 
@@ -29,6 +31,6 @@ def discover_handlers():
     _DISCOVERED = True
 
 
-def get_handler(research_object_id):
+def get_handler(research_object_id: str) -> ProjectionHandler:
     discover_handlers()
     return _HANDLERS[research_object_id]
