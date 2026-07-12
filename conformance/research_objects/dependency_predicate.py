@@ -8,7 +8,7 @@ from conformance.research_objects.registry import register
 RESEARCH_OBJECT_ID = "definition.dependency.dependency-predicate"
 
 
-def dependency_projection(artifact):
+def project(artifact):
     dependency = artifact["dependency_lattice"][0]
     is_dependency = dependency["dependency"]
 
@@ -36,4 +36,4 @@ def dependency_projection(artifact):
     }
 
 
-register(RESEARCH_OBJECT_ID, dependency_projection)
+register(RESEARCH_OBJECT_ID, project)

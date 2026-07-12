@@ -130,6 +130,8 @@ def main():
 
     discover()
 
+    discover()
+
     projection = get_handler(
         fixture["research_object_id"]
     )(artifact)
