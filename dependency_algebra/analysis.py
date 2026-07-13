@@ -88,7 +88,7 @@ class CoreStructuralAnalysisPass:
             accepted_input=CANONICAL_IR_INPUT_CONTRACT,
             deterministic_configuration=configuration,
             specification_references=(
-                "SPEC.md#dependency-algebra",
+                "SPEC.md",
                 "DEPENDENCY_PREDICATE_CONTRACT.md",
                 "REACHABILITY_CONTRACT.md",
                 "DETERMINISM.md",
