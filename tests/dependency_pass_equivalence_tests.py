@@ -37,6 +37,45 @@ class DependencyPassEquivalenceTests(unittest.TestCase):
         self.assertGreater(len(DEPENDENCY_FIXTURE_FAMILY), 0)
         self.assertGreater(len(CANONICAL_DEPENDENCY_FIXTURES), 0)
 
+    def test_invalid_dependency_fixtures_are_rejected_deterministically(self):
+        invalid_paths = [
+            path for path in DEPENDENCY_FIXTURE_FAMILY if path.name in INVALID_DEPENDENCY_FIXTURES
+        ]
+        self.assertEqual({path.name for path in invalid_paths}, INVALID_DEPENDENCY_FIXTURES)
+
+        for path in invalid_paths:
+            with self.subTest(fixture=str(path.relative_to(ROOT))):
+                doc = json.loads(path.read_text(encoding="utf-8"))
+                first_errors = self._dependency_fixture_rejection_fingerprint(doc)
+                second_errors = self._dependency_fixture_rejection_fingerprint(doc)
+                self.assertGreater(len(first_errors), 0)
+                self.assertEqual(first_errors, second_errors)
+
+    def _dependency_fixture_rejection_fingerprint(self, doc: dict[str, Any]) -> tuple[tuple[str, str], ...]:
+        errors: list[tuple[str, str]] = []
+        if doc.get("dependency_reason") not in {
+            "no_structurally_valid_path_after_projection",
+            "structurally_valid_path_remaining_after_projection",
+        }:
+            errors.append(("dependency_reason", "unsupported dependency reason"))
+        for field in (
+            "normalized_ir_hash",
+            "projected_ir_hash",
+            "reachability_result_hash",
+            "dependency_result_hash",
+        ):
+            value = doc.get(field)
+            if not isinstance(value, str) or not self._is_sha256_digest(value):
+                errors.append((field, "missing or invalid sha256 digest"))
+        return tuple(sorted(errors))
+
+    def _is_sha256_digest(self, value: str) -> bool:
+        return (
+            len(value) == 71
+            and value.startswith("sha256:")
+            and all(char in "0123456789abcdef" for char in value.removeprefix("sha256:"))
+        )
+
     def _ir_for_topology_fixture(self, path: Path) -> CanonicalIR:
         source = path.read_text(encoding="utf-8")
         topology = parse_topology(source, str(path.relative_to(ROOT)))

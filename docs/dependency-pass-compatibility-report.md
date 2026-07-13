@@ -43,7 +43,8 @@ For every canonical topology fixture, and for synthesized canonical IR cases der
 - complete `AnalysisResult` serialization;
 - repeated registered `AnalysisResult` serialization;
 - legacy-vs-registered compiler artifact serialization;
-- repeated compiler artifact serialization.
+- repeated compiler artifact serialization;
+- deterministic rejection fingerprints for invalid dependency fixture vectors.
 
 ## Preserved Surfaces
 
