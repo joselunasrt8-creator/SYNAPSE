@@ -1,0 +1,195 @@
+{
+  "schema_version": "synapse.traceability.v1",
+  "statuses": [
+    "VERIFIED",
+    "PARTIAL",
+    "MISSING_IMPLEMENTATION",
+    "MISSING_SPECIFICATION",
+    "MISSING_TEST",
+    "AMBIGUOUS",
+    "SUPERSEDED"
+  ],
+  "entries": [
+    {
+      "spec_ref": "SPEC.md#4-compiler-pipeline",
+      "requirement": "Source topology is parsed before validation, normalization, analysis, serialization, artifact emission, and CLI consumption.",
+      "implementation_path": "dependency_algebra/frontend.py",
+      "implementation_symbol": "parse_topology",
+      "test_path": "tests/cli_tests.py",
+      "artifact_or_output": "diagnostic JSON or parsed topology document",
+      "status": "VERIFIED",
+      "evidence": "CLI malformed JSON and successful compile tests exercise parse success and parse failure boundaries.",
+      "exact_gap": ""
+    },
+    {
+      "spec_ref": "COMPILER_FRONTEND_CONTRACT.md#parser-error-taxonomy",
+      "requirement": "Invalid JSON rejects input before AST construction with deterministic parser diagnostics.",
+      "implementation_path": "dependency_algebra/frontend.py",
+      "implementation_symbol": "parse_topology",
+      "test_path": "tests/cli_tests.py",
+      "artifact_or_output": "dependency-algebra.diagnostic.v1",
+      "status": "VERIFIED",
+      "evidence": "Malformed JSON fixture returns exit code 1 and PARSER.INVALID_JSON diagnostics.",
+      "exact_gap": ""
+    },
+    {
+      "spec_ref": "COMPILER_FRONTEND_CONTRACT.md#frontend-phases",
+      "requirement": "Parse, AST construction, and normalization are distinct logical phases; failed phases stop later phases.",
+      "implementation_path": "dependency_algebra/frontend.py",
+      "implementation_symbol": "validate_and_normalize",
+      "test_path": "tests/traceability_tests.py",
+      "artifact_or_output": "normalization diagnostics or canonical IR",
+      "status": "PARTIAL",
+      "evidence": "parse_topology is separate, but shape validation and normalization are co-located in validate_and_normalize/_validate_shape/_normalize.",
+      "exact_gap": "AST construction is not exposed as a standalone implementation boundary."
+    },
+    {
+      "spec_ref": "AST_IR_CONTRACT.md#ast-to-ir-normalization-contract",
+      "requirement": "Duplicate component, edge, and workload identifiers are rejected before IR construction.",
+      "implementation_path": "dependency_algebra/frontend.py",
+      "implementation_symbol": "validate_and_normalize",
+      "test_path": "tests/cli_tests.py",
+      "artifact_or_output": "NORMALIZE.DUPLICATE_* diagnostics",
+      "status": "VERIFIED",
+      "evidence": "Duplicate identifier fixture returns normalization diagnostics and no successful artifact.",
+      "exact_gap": ""
+    },
+    {
+      "spec_ref": "AST_IR_CONTRACT.md#ast-to-ir-normalization-contract",
+      "requirement": "Unresolved edge endpoints, workload roots, workload targets, and candidate components are rejected fail-closed.",
+      "implementation_path": "dependency_algebra/frontend.py",
+      "implementation_symbol": "validate_and_normalize",
+      "test_path": "tests/cli_tests.py",
+      "artifact_or_output": "NORMALIZE.UNRESOLVED_* diagnostics",
+      "status": "PARTIAL",
+      "evidence": "Existing CLI tests cover unresolved edge endpoints; manifest records broader requirement.",
+      "exact_gap": "Semantic/conformance coverage for unresolved target and candidate diagnostics is incomplete."
+    },
+    {
+      "spec_ref": "AST_IR_CONTRACT.md#canonical-ordering-rules",
+      "requirement": "Components, edges, workloads, roots, candidate sets, and adjacency entries use canonical lexicographic ordering.",
+      "implementation_path": "dependency_algebra/frontend.py",
+      "implementation_symbol": "_normalize",
+      "test_path": "tests/schema_tests.py",
+      "artifact_or_output": "dependency-algebra.ir.v1 normalized IR",
+      "status": "VERIFIED",
+      "evidence": "Schema/conformance tests include stable-ordering and equivalent AST/IR fixture coverage.",
+      "exact_gap": ""
+    },
+    {
+      "spec_ref": "DETERMINISM.md#canonical-serialization-rules",
+      "requirement": "Canonical JSON uses sorted keys, compact separators, UTF-8 bytes, and no trailing newline.",
+      "implementation_path": "dependency_algebra/serialization.py",
+      "implementation_symbol": "canonical_json_bytes",
+      "test_path": "tests/architecture_tests.py",
+      "artifact_or_output": "canonical JSON text/bytes and sha256 hashes",
+      "status": "VERIFIED",
+      "evidence": "Canonical projection serialization test asserts stable compact sorted JSON output.",
+      "exact_gap": ""
+    },
+    {
+      "spec_ref": "AST_IR_CONTRACT.md#ir-contract",
+      "requirement": "Canonical IR is analysis-ready and representable without reachability, projection, or dependency evaluation.",
+      "implementation_path": "dependency_algebra/ir.py",
+      "implementation_symbol": "CanonicalIR",
+      "test_path": "tests/schema_tests.py",
+      "artifact_or_output": "CanonicalIR typed object and IR schema payload",
+      "status": "VERIFIED",
+      "evidence": "Schema tests and architecture tests validate IR fixtures and immutable typed boundary use.",
+      "exact_gap": ""
+    },
+    {
+      "spec_ref": "COMPLEMENT_PROJECTION_CONTRACT.md#projection-semantics",
+      "requirement": "Complement projection removes each candidate component and every incident edge while preserving unaffected graph structure.",
+      "implementation_path": "dependency_algebra/projection.py",
+      "implementation_symbol": "project",
+      "test_path": "tests/schema_tests.py",
+      "artifact_or_output": "ProjectedIR compatibility dictionary",
+      "status": "PARTIAL",
+      "evidence": "Projection implementation removes candidate nodes and outgoing references to candidates; schema fixtures cover projected object shapes.",
+      "exact_gap": "Implementation exposes only traversal-oriented ProjectedIR rather than full projected normalized IR contract shape."
+    },
+    {
+      "spec_ref": "REACHABILITY_CONTRACT.md#reachability-definition",
+      "requirement": "Reachability is directed path existence from any workload root to the workload target with deterministic traversal and cycle termination.",
+      "implementation_path": "dependency_algebra/reachability.py",
+      "implementation_symbol": "evaluate",
+      "test_path": "tests/reachability_profile_conformance_tests.py",
+      "artifact_or_output": "dependency-algebra.reachability.v1",
+      "status": "VERIFIED",
+      "evidence": "Reachability profile conformance tests cover reachable, disconnected, multi-root, cycle, and self-loop fixtures.",
+      "exact_gap": ""
+    },
+    {
+      "spec_ref": "DEPENDENCY_PREDICATE_CONTRACT.md#dependency-predicate-definition",
+      "requirement": "Dependency(S, W) is true exactly when Reach(W | not S) is empty.",
+      "implementation_path": "dependency_algebra/predicate.py",
+      "implementation_symbol": "evaluate",
+      "test_path": "tests/schema_tests.py",
+      "artifact_or_output": "dependency-algebra.dependency.v1",
+      "status": "PARTIAL",
+      "evidence": "Predicate implementation applies projection then reachability; fixture/schema coverage exists for dependency result vectors.",
+      "exact_gap": "Semantic tests are not exhaustive across every dependency fixture."
+    },
+    {
+      "spec_ref": "SPEC.md#3-canonical-terminology",
+      "requirement": "Structural classification is VALID, DEGRADED, or NULL and is not execution authorization or legitimacy.",
+      "implementation_path": "dependency_algebra/classification.py",
+      "implementation_symbol": "classify_result",
+      "test_path": "tests/boundary_tests.py",
+      "artifact_or_output": "classification string in analysis, receipt, and artifact outputs",
+      "status": "VERIFIED",
+      "evidence": "Boundary tests enforce structural-only documentation; classification code emits only the three structural values.",
+      "exact_gap": ""
+    },
+    {
+      "spec_ref": "SPEC.md#5-artifact-lifecycle",
+      "requirement": "Compiler emits deterministic structural evidence artifacts and hash receipts that are not authority objects.",
+      "implementation_path": "dependency_algebra/compiler.py",
+      "implementation_symbol": "compile_artifact",
+      "test_path": "tests/cli_tests.py",
+      "artifact_or_output": "dependency-algebra.artifact.v1 JSON",
+      "status": "VERIFIED",
+      "evidence": "CLI success and repeated execution tests verify artifact shape, no stdout/stderr, and byte-identical repeated output.",
+      "exact_gap": ""
+    },
+    {
+      "spec_ref": "README.md#synapse-cli",
+      "requirement": "CLI compile command exists, writes deterministic artifact JSON, emits machine-readable diagnostics, and uses stable exit codes.",
+      "implementation_path": "dependency_algebra/cli.py",
+      "implementation_symbol": "main",
+      "test_path": "tests/cli_tests.py",
+      "artifact_or_output": "artifact file or diagnostic stderr JSON",
+      "status": "VERIFIED",
+      "evidence": "CLI integration tests cover success, malformed input, unresolved references, duplicates, missing input, emission failure, argument errors, and deterministic repeated execution.",
+      "exact_gap": ""
+    },
+    {
+      "spec_ref": "SPEC.md#7-frozen-contract-index",
+      "requirement": "Every normative contract area is indexed and traceable to implementation, tests, artifacts, and status.",
+      "implementation_path": "scripts/check_traceability.py",
+      "implementation_symbol": "main",
+      "test_path": "tests/traceability_tests.py",
+      "artifact_or_output": "registry/traceability.json validation report",
+      "status": "VERIFIED",
+      "evidence": "Traceability validator checks spec refs, implementation/test paths, symbols, statuses, and missing correspondence failure behavior.",
+      "exact_gap": ""
+    }
+  ],
+  "unspecified_public_behaviors": [
+    {
+      "behavior": "compile_artifact emits redundancy_map, k_of_n_resilience_profile, and annihilation_conditions fields.",
+      "implementation_path": "dependency_algebra/compiler.py",
+      "implementation_symbol": "compile_artifact",
+      "status": "MISSING_SPECIFICATION",
+      "evidence": "Artifact schema lists these fields, but SPEC.md does not define their semantics beyond evidence artifact examples."
+    },
+    {
+      "behavior": "CLI accepts reserved flags --strict, --emit-diagnostics, and --emit-hash-receipt without changing output.",
+      "implementation_path": "dependency_algebra/cli.py",
+      "implementation_symbol": "_add_compile_arguments",
+      "status": "MISSING_SPECIFICATION",
+      "evidence": "README documents stable command shape and exit codes but does not normatively define reserved flag behavior."
+    }
+  ]
+}
