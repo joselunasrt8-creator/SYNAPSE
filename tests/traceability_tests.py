@@ -45,6 +45,19 @@ class TraceabilityManifestTests(unittest.TestCase):
             errors, _ = validate_manifest(path)
         self.assertTrue(any("test_path does not exist" in error for error in errors))
 
+    def test_pytest_configuration_collects_traceability_tests(self):
+        pytest_ini = (ROOT / "pytest.ini").read_text(encoding="utf-8")
+        self.assertIn("python_files = *_tests.py", pytest_ini)
+
+    def test_ci_runs_traceability_validation(self):
+        workflows = [
+            ROOT / ".github" / "workflows" / "test.yml",
+            ROOT / ".github" / "workflows" / "package.yml",
+        ]
+        for workflow in workflows:
+            with self.subTest(workflow=workflow.name):
+                self.assertIn("python scripts/check_traceability.py", workflow.read_text(encoding="utf-8"))
+
     def test_undocumented_public_behavior_is_reported(self):
         manifest = json.loads(DEFAULT_MANIFEST.read_text(encoding="utf-8"))
         behaviors = manifest["unspecified_public_behaviors"]
