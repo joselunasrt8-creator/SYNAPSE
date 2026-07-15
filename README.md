@@ -9,7 +9,7 @@
 
 ## Deterministic Structural Analysis Framework
 
-SYNAPSE is a standalone deterministic structural analysis framework:
+SYNAPSE transforms declared software topology into deterministic structural analyses and reproducible structural evidence.
 
 ```text
 Topology
@@ -21,17 +21,35 @@ Deterministic Structural Analysis
 Structural Evidence
 ```
 
-SYNAPSE accepts declared topology, validates and normalizes it into a canonical structural representation, executes registered deterministic structural analyses, and emits reproducible structural results and evidence artifacts.
-
 Dependency Algebra is the current reference implementation and the first implemented structural analysis. It demonstrates the framework without defining its complete identity.
 
 The current implementation includes a structural compiler, analysis engine, canonical serialization utilities, public APIs, deterministic evidence artifacts, and a command-line interface.
 
 ---
 
+## Core Runtime
+
+```text
+Source Topology
+        ↓
+Validation
+        ↓
+Canonical Structural Representation
+        ↓
+Registered Structural Analysis
+        ↓
+Deterministic Structural Result
+        ↓
+Structural Evidence Artifact
+```
+
+---
+
 ## What Problem Does Structural Analysis Solve?
 
-Structural analysis answers repeatable questions about declared system topology without relying on runtime state, timestamps, machine-local context, random identifiers, or external mutation. The current Dependency Algebra analysis asks whether removing a workload's candidate component set collapses directed reachability from workload roots to the target.
+Structural analysis answers repeatable questions about software structure.
+
+SYNAPSE performs these analyses using canonical structural representations and deterministic analysis passes. Dependency Algebra is the first implemented structural analysis and asks whether removing a workload's candidate component set eliminates all directed paths from workload roots to the workload target.
 
 The core implemented predicate is:
 
@@ -82,7 +100,7 @@ Diagnostic behavior is defined by [`COMPILER_FRONTEND_CONTRACT.md`](COMPILER_FRO
 
 ---
 
-## Current Structural Analyses
+## Registered Structural Analyses
 
 The currently implemented structural analysis is Dependency Algebra. It includes these deterministic passes:
 
@@ -97,7 +115,7 @@ Unimplemented analyses are not currently available.
 
 ---
 
-## Deterministic Artifacts
+## Structural Evidence
 
 SYNAPSE emits deterministic structural results and structural evidence artifacts.
 
@@ -126,23 +144,7 @@ Structural results are analysis outputs such as reachability, dependency, and cl
 
 ## Compiler Pipeline
 
-The canonical SYNAPSE pipeline is:
-
-```text
-Source Topology
-        ↓
-Validation
-        ↓
-Canonical Structural Representation
-        ↓
-Registered Structural Analysis
-        ↓
-Deterministic Structural Result
-        ↓
-Structural Evidence Artifact
-```
-
-The current implementation maps that architecture to these concrete stages:
+The current implementation maps the core runtime to these concrete stages:
 
 ```text
 Source topology
@@ -248,7 +250,7 @@ It:
 - produces deterministic structural results
 - serializes structural evidence artifacts
 
-Behavior outside structural analysis is outside the repository boundary.
+SYNAPSE deliberately ends at structural evidence.
 
 `VALID`, `DEGRADED`, and `NULL` are structural classifications only. They summarize deterministic analysis results and do not cause external actions or state changes.
 
@@ -266,14 +268,4 @@ Future structural analyses may be added as additional deterministic analysis pas
 - conformance tests
 - hash boundaries, if the result crosses a serialized evidence boundary
 
-Future analyses must preserve the same top-level SYNAPSE identity:
-
-```text
-Topology
-    ↓
-Canonical Structural Representation
-    ↓
-Deterministic Structural Analysis
-    ↓
-Structural Evidence
-```
+Every registered structural analysis operates over the canonical structural representation and preserves SYNAPSE's deterministic analysis model.
