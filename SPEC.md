@@ -147,6 +147,7 @@ Diagnostics are deterministic structural rejection or warning records. They must
 | Dependency predicate | [`DEPENDENCY_PREDICATE_CONTRACT.md`](DEPENDENCY_PREDICATE_CONTRACT.md), [`schemas/dependency.schema.json`](schemas/dependency.schema.json), [`fixtures/dependency/`](fixtures/dependency/) |
 | Classification | [`schemas/classification.schema.json`](schemas/classification.schema.json), [`fixtures/valid/`](fixtures/valid/), [`fixtures/degraded/`](fixtures/degraded/), [`fixtures/null/`](fixtures/null/) |
 | Artifact and receipt evidence | [`schemas/artifact.schema.json`](schemas/artifact.schema.json), [`DETERMINISM.md`](DETERMINISM.md) |
+| Artifact Registry Object Model | [`ARTIFACT_REGISTRY_OBJECT_MODEL.md`](ARTIFACT_REGISTRY_OBJECT_MODEL.md), [`schemas/artifact-registry-object.schema.json`](schemas/artifact-registry-object.schema.json), [`fixtures/artifact_registry/`](fixtures/artifact_registry/) |
 | Canonicalization / serialization / hash boundaries | [`DETERMINISM.md`](DETERMINISM.md), [`ARCHITECTURE_CLOSURE_REPORT.md`](ARCHITECTURE_CLOSURE_REPORT.md) |
 | Fixture catalog | [`FIXTURES.md`](FIXTURES.md) |
 | Conformance objects | [`conformance/`](conformance/) |

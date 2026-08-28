@@ -1,0 +1,35 @@
+{
+  "artifact_id": "urn:synapse:artifact:validation-record:v1",
+  "artifact_type": "synapse.validation-record.v1",
+  "content_hash": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+  "input_references": [],
+  "lifecycle_state": "active",
+  "logical_id": "validation-record",
+  "output_references": [],
+  "producer": {
+    "kind": "process",
+    "producer_id": "synapse.contract-fixture"
+  },
+  "provenance": {
+    "activity": {
+      "activity_id": "synapse.fixture.validation-record",
+      "activity_version": "1"
+    },
+    "parameters": {},
+    "reproduction": [
+      "Load the scoped validation-record declaration.",
+      "Verify the immutable validation-record content hash."
+    ],
+    "source_references": [
+      "repository:joselunasrt8-creator/SYNAPSE@issue-160"
+    ]
+  },
+  "relationships": [],
+  "schema_version": "synapse.artifact-registry-object.v1",
+  "validity": {
+    "assessed_by": null,
+    "basis": null,
+    "state": "unassessed"
+  },
+  "version": 1
+}

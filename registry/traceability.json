@@ -303,6 +303,19 @@
       "evidence": "Focused conformance tests execute the real Structural Analysis Foundations Paper 1 fixture, compare source fixture hash, normalized IR hash, result hash, artifact hash, expected and actual classification, verify byte-identical repeated output, preserve fixture edge order before SYNAPSE normalization, and cover deterministic negative cases for unknown research object, unsupported fixture version, malformed fixture, missing normative reference, missing registered analysis, source hash mismatch, normalized IR hash mismatch, malformed analysis result, expected classification mismatch, and repeated-run divergence.",
       "exact_gap": "",
       "external_fixture_path": "../structural-analysis-foundations/conformance/fixtures/dependency-predicate.fixture.json"
+    },
+    {
+      "spec_ref": "ARTIFACT_REGISTRY_OBJECT_MODEL.md#2-canonical-artifact-object",
+      "requirement": "Issue #160 defines the canonical portable Artifact identity, provenance, immutable versioning, lifecycle, validity, supersession, and non-inheriting relationship contract without registry infrastructure.",
+      "implementation_path": "scripts/validate_artifact_contract.py",
+      "implementation_symbol": "validate_document",
+      "test_path": "tests/artifact_registry_contract_tests.py",
+      "artifact_or_output": "synapse.artifact-registry-object.v1 schema, valid end-to-end fixture chain, and invalid contract vectors",
+      "status": "VERIFIED",
+      "evidence": "Schema and deterministic semantic tests validate all required fields, nine explicit relationship types, typed production/validation/authorization/execution targets, declared-to-resolved target type agreement, identity/version agreement, supersession lineage, ordering, reference resolution, separation invariants, and repeated validator output.",
+      "exact_gap": "",
+      "schema_path": "schemas/artifact-registry-object.schema.json",
+      "fixture_path": "fixtures/artifact_registry/valid/01-snapshot.json"
     }
   ],
   "unspecified_public_behaviors": [

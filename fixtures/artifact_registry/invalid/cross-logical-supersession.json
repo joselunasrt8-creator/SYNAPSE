@@ -1,0 +1,73 @@
+{
+  "artifact_id": "urn:synapse:artifact:analysis-result:v2",
+  "artifact_type": "dependency-algebra.structural-evidence.v2",
+  "content_hash": "sha256:0000000000000000000000000000000000000000000000000000000000000006",
+  "input_references": [
+    "urn:synapse:artifact:model-object:v1"
+  ],
+  "lifecycle_state": "active",
+  "logical_id": "analysis-result",
+  "output_references": [
+    "urn:synapse:artifact:decision-reference:v1"
+  ],
+  "producer": {
+    "kind": "process",
+    "producer_id": "synapse.contract-fixture"
+  },
+  "provenance": {
+    "activity": {
+      "activity_id": "synapse.fixture.analysis2",
+      "activity_version": "1"
+    },
+    "parameters": {},
+    "reproduction": [
+      "Load the declared inputs for analysis2.",
+      "Apply synapse.fixture.analysis2 version 1 and verify the content hash."
+    ],
+    "source_references": [
+      "repository:joselunasrt8-creator/SYNAPSE@issue-160"
+    ]
+  },
+  "relationships": [
+    {
+      "basis": "Corrected result differs from the earlier conclusion.",
+      "legitimacy_inherited": false,
+      "target_artifact_id": "urn:synapse:artifact:analysis-result:v1",
+      "target_artifact_type": "dependency-algebra.structural-evidence.v2",
+      "type": "contradicts"
+    },
+    {
+      "basis": "Reanalysis consumed the same model.",
+      "legitimacy_inherited": false,
+      "target_artifact_id": "urn:synapse:artifact:model-object:v1",
+      "target_artifact_type": "synapse.model-object.v1",
+      "type": "derived_from"
+    },
+    {
+      "basis": "Receipt identifies the deterministic analysis activity.",
+      "legitimacy_inherited": false,
+      "target_artifact_id": "urn:synapse:artifact:production-receipt:v1",
+      "target_artifact_type": "synapse.production-receipt.v1",
+      "type": "produced_by"
+    },
+    {
+      "basis": "Corrects the analysis configuration.",
+      "legitimacy_inherited": false,
+      "target_artifact_id": "urn:synapse:artifact:model-object:v1",
+      "target_artifact_type": "synapse.model-object.v1",
+      "type": "supersedes"
+    }
+  ],
+  "schema_version": "synapse.artifact-registry-object.v1",
+  "supersession": {
+    "previous_artifact_id": "urn:synapse:artifact:model-object:v1",
+    "previous_version": 1,
+    "reason": "Corrected analysis configuration."
+  },
+  "validity": {
+    "assessed_by": null,
+    "basis": null,
+    "state": "unassessed"
+  },
+  "version": 2
+}

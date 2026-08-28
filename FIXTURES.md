@@ -1,5 +1,22 @@
 # Fixture Catalog
 
+## Artifact Registry Object Model
+
+`fixtures/artifact_registry/valid/` contains the immutable objects in the
+Repository Snapshot → Observation → Evidence Record → Model Object → Analysis
+Result → Decision Reference example (plus an earlier superseded analysis version
+and typed production, validation, authorization, and execution records).
+`fixtures/artifact_registry/invalid/` contains deterministic schema and
+cross-field rejection vectors for identity mismatch, cross-logical
+supersession, inherited legitimacy, authorization/execution conflation, and an
+evidence artifact incorrectly used as an authorization target.
+
+Validate the positive collection with:
+
+```bash
+python scripts/validate_artifact_contract.py fixtures/artifact_registry/valid
+```
+
 Fixtures are canonical schema-stabilization inputs.
 
 - `fixtures/valid/minimal-valid.json`: a single reachable workload with no dependency collapse.

@@ -30,6 +30,7 @@ SCHEMA_PATHS = [
     SCHEMAS / "dependency.schema.json",
     SCHEMAS / "projection.schema.json",
     SCHEMAS / "structural-evidence.schema.json",
+    SCHEMAS / "artifact-registry-object.schema.json",
 ]
 TOPOLOGY_SCHEMA_PATH = SCHEMAS / "topology.schema.json"
 CLASSIFICATION_SCHEMA_PATH = SCHEMAS / "classification.schema.json"

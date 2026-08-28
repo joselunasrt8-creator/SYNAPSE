@@ -1,0 +1,52 @@
+{
+  "artifact_id": "urn:synapse:artifact:analysis-result:v1",
+  "artifact_type": "dependency-algebra.structural-evidence.v2",
+  "content_hash": "sha256:0000000000000000000000000000000000000000000000000000000000000005",
+  "input_references": [
+    "urn:synapse:artifact:model-object:v1"
+  ],
+  "lifecycle_state": "superseded",
+  "logical_id": "analysis-result",
+  "output_references": [],
+  "producer": {
+    "kind": "process",
+    "producer_id": "synapse.contract-fixture"
+  },
+  "provenance": {
+    "activity": {
+      "activity_id": "synapse.fixture.analysis1",
+      "activity_version": "1"
+    },
+    "parameters": {},
+    "reproduction": [
+      "Load the declared inputs for analysis1.",
+      "Apply synapse.fixture.analysis1 version 1 and verify the content hash."
+    ],
+    "source_references": [
+      "repository:joselunasrt8-creator/SYNAPSE@issue-160"
+    ]
+  },
+  "relationships": [
+    {
+      "basis": "Analysis consumed the model object.",
+      "legitimacy_inherited": false,
+      "target_artifact_id": "urn:synapse:artifact:model-object:v1",
+      "target_artifact_type": "synapse.model-object.v1",
+      "type": "derived_from"
+    },
+    {
+      "basis": "Validation record assesses the analysis against the fixture criterion.",
+      "legitimacy_inherited": false,
+      "target_artifact_id": "urn:synapse:artifact:validation-record:v1",
+      "target_artifact_type": "synapse.validation-record.v1",
+      "type": "validated_by"
+    }
+  ],
+  "schema_version": "synapse.artifact-registry-object.v1",
+  "validity": {
+    "assessed_by": null,
+    "basis": null,
+    "state": "unassessed"
+  },
+  "version": 1
+}
