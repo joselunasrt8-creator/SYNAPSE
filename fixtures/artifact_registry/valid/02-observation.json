@@ -33,6 +33,7 @@
       "basis": "Observed from the pinned repository tree.",
       "legitimacy_inherited": false,
       "target_artifact_id": "urn:synapse:artifact:repository-snapshot:v1",
+      "target_artifact_type": "synapse.repository-snapshot.v1",
       "type": "derived_from"
     }
   ],

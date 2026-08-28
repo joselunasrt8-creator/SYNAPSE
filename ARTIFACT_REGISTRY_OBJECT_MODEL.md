@@ -63,7 +63,7 @@ A reproducible chain requires every consumed artifact identity to resolve to the
 
 ## 6. Relationship semantics
 
-Every relationship is directed from the containing artifact (source) to `target_artifact_id`, carries an optional `basis`, and has `legitimacy_inherited: false`. No relationship implies any other relationship.
+Every relationship is directed from the containing artifact (source) to `target_artifact_id`, declares the resolved target's `target_artifact_type`, carries an optional `basis`, and has `legitimacy_inherited: false`. Collection validation rejects a declared target type that differs from the resolved target object. No relationship implies any other relationship. `produced_by`, `validated_by`, `authorized_by`, and `executed_as` additionally require production-receipt, validation-record, authorization-record, and execution-record targets respectively; evidence or observation artifacts cannot stand in for those records.
 
 | Type | Exact meaning |
 | --- | --- |

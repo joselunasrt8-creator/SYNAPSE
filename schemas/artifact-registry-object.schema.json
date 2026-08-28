@@ -67,13 +67,20 @@
       "type": "array", "uniqueItems": true,
       "items": {
         "type": "object", "additionalProperties": false,
-        "required": ["type", "target_artifact_id", "basis", "legitimacy_inherited"],
+        "required": ["type", "target_artifact_id", "target_artifact_type", "basis", "legitimacy_inherited"],
         "properties": {
           "type": {"enum": ["produced_by", "derived_from", "supports", "contradicts", "supersedes", "implements", "validated_by", "authorized_by", "executed_as"]},
           "target_artifact_id": {"$ref": "#/$defs/artifactId"},
+          "target_artifact_type": {"type": "string", "pattern": "^[a-z][a-z0-9.-]*\\.v[1-9][0-9]*$"},
           "basis": {"type": ["string", "null"], "minLength": 1},
           "legitimacy_inherited": {"const": false}
-        }
+        },
+        "allOf": [
+          {"if": {"properties": {"type": {"const": "produced_by"}}, "required": ["type"]}, "then": {"properties": {"target_artifact_type": {"const": "synapse.production-receipt.v1"}}}},
+          {"if": {"properties": {"type": {"const": "validated_by"}}, "required": ["type"]}, "then": {"properties": {"target_artifact_type": {"const": "synapse.validation-record.v1"}}}},
+          {"if": {"properties": {"type": {"const": "authorized_by"}}, "required": ["type"]}, "then": {"properties": {"target_artifact_type": {"const": "synapse.authorization-record.v1"}}}},
+          {"if": {"properties": {"type": {"const": "executed_as"}}, "required": ["type"]}, "then": {"properties": {"target_artifact_type": {"const": "synapse.execution-record.v1"}}}}
+        ]
       }
     }
   },

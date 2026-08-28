@@ -33,12 +33,14 @@
       "basis": "Normalized observation into an evidence record.",
       "legitimacy_inherited": true,
       "target_artifact_id": "urn:synapse:artifact:observation:v1",
+      "target_artifact_type": "synapse.observation.v1",
       "type": "derived_from"
     },
     {
       "basis": "Preserves the observed dependency statement.",
       "legitimacy_inherited": false,
       "target_artifact_id": "urn:synapse:artifact:observation:v1",
+      "target_artifact_type": "synapse.observation.v1",
       "type": "supports"
     }
   ],

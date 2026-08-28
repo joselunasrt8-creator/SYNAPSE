@@ -31,12 +31,14 @@
       "basis": "Analysis consumed the model object.",
       "legitimacy_inherited": false,
       "target_artifact_id": "urn:synapse:artifact:model-object:v1",
+      "target_artifact_type": "synapse.model-object.v1",
       "type": "derived_from"
     },
     {
-      "basis": "Evidence fixture supplies the validation basis.",
+      "basis": "Validation record assesses the analysis against the fixture criterion.",
       "legitimacy_inherited": false,
-      "target_artifact_id": "urn:synapse:artifact:evidence-record:v1",
+      "target_artifact_id": "urn:synapse:artifact:validation-record:v1",
+      "target_artifact_type": "synapse.validation-record.v1",
       "type": "validated_by"
     }
   ],

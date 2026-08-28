@@ -312,7 +312,7 @@
       "test_path": "tests/artifact_registry_contract_tests.py",
       "artifact_or_output": "synapse.artifact-registry-object.v1 schema, valid end-to-end fixture chain, and invalid contract vectors",
       "status": "VERIFIED",
-      "evidence": "Schema and deterministic semantic tests validate all required fields, nine explicit relationship types, identity/version agreement, supersession lineage, ordering, reference resolution, separation invariants, and repeated validator output.",
+      "evidence": "Schema and deterministic semantic tests validate all required fields, nine explicit relationship types, typed production/validation/authorization/execution targets, declared-to-resolved target type agreement, identity/version agreement, supersession lineage, ordering, reference resolution, separation invariants, and repeated validator output.",
       "exact_gap": "",
       "schema_path": "schemas/artifact-registry-object.schema.json",
       "fixture_path": "fixtures/artifact_registry/valid/01-snapshot.json"

@@ -30,8 +30,8 @@
     {
       "basis": "Scoped authorization record permits use in this decision context.",
       "legitimacy_inherited": false,
-      "target_artifact_id": "urn:synapse:artifact:authorization-record:v1",
-      "target_artifact_type": "synapse.authorization-record.v1",
+      "target_artifact_id": "urn:synapse:artifact:evidence-record:v1",
+      "target_artifact_type": "synapse.evidence-record.v1",
       "type": "authorized_by"
     },
     {

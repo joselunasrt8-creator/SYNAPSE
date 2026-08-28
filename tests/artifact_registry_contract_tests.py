@@ -29,7 +29,7 @@ class ArtifactRegistryObjectContractTests(unittest.TestCase):
         Draft202012Validator.check_schema(self.schema)
 
     def test_end_to_end_fixtures_are_schema_and_semantically_valid(self):
-        self.assertEqual(len(self.valid_paths), 8)
+        self.assertEqual(len(self.valid_paths), 11)
         documents = []
         for path in self.valid_paths:
             with self.subTest(path=path):
@@ -41,7 +41,7 @@ class ArtifactRegistryObjectContractTests(unittest.TestCase):
 
     def test_compressed_chain_has_required_types_in_order(self):
         self.assertEqual(
-            [load_document(path)["logical_id"] for path in self.valid_paths if "analysis1" not in path.name and "production-receipt" not in path.name],
+            [load_document(path)["logical_id"] for path in self.valid_paths if path.name[:2] in {"01", "02", "03", "04", "06", "07"}],
             ["repository-snapshot", "observation", "evidence-record", "model-object", "analysis-result", "decision-reference"],
         )
 
@@ -57,7 +57,7 @@ class ArtifactRegistryObjectContractTests(unittest.TestCase):
         )
 
     def test_schema_invalid_fixtures_fail_for_the_intended_boundary(self):
-        for name in ("inherited-legitimacy.json", "authorization-execution-conflation.json"):
+        for name in ("inherited-legitimacy.json", "authorization-execution-conflation.json", "wrong-authorization-target-type.json"):
             with self.subTest(name=name):
                 errors = list(self.validator.iter_errors(load_document(FIXTURES / "invalid" / name)))
                 self.assertTrue(errors)
@@ -75,11 +75,25 @@ class ArtifactRegistryObjectContractTests(unittest.TestCase):
                 self.validator.validate(document)
                 self.assertEqual(validate_document(document), errors)
 
+    def test_collection_rejects_declared_target_type_mismatch(self):
+        documents = [load_document(path) for path in self.valid_paths]
+        decision = next(document for document in documents if document["logical_id"] == "decision-reference")
+        support = next(edge for edge in decision["relationships"] if edge["type"] == "supports")
+        support["target_artifact_type"] = "synapse.observation.v1"
+        self.assertEqual(
+            validate_collection(documents),
+            [
+                "collection:urn:synapse:artifact:decision-reference:v1 relationship supports declares target type "
+                "synapse.observation.v1 but urn:synapse:artifact:analysis-result:v2 has type "
+                "dependency-algebra.structural-evidence.v2"
+            ],
+        )
+
     def test_existence_validity_authority_and_execution_are_independent(self):
         artifact = load_document(self.valid_paths[0])
         self.assertEqual(artifact["validity"]["state"], "unassessed")
         mutated = copy.deepcopy(artifact)
-        mutated["relationships"] = [{"type": "supports", "target_artifact_id": artifact["artifact_id"], "basis": "self", "legitimacy_inherited": False}]
+        mutated["relationships"] = [{"type": "supports", "target_artifact_id": artifact["artifact_id"], "target_artifact_type": artifact["artifact_type"], "basis": "self", "legitimacy_inherited": False}]
         self.assertIn("relationship:self-reference is forbidden", validate_document(mutated))
         self.assertNotIn("authorized_by", {edge["type"] for edge in artifact["relationships"]})
         self.assertNotIn("executed_as", {edge["type"] for edge in artifact["relationships"]})
@@ -89,4 +103,4 @@ class ArtifactRegistryObjectContractTests(unittest.TestCase):
         first = subprocess.run(command, cwd=ROOT, check=True, text=True, capture_output=True)
         second = subprocess.run(command, cwd=ROOT, check=True, text=True, capture_output=True)
         self.assertEqual(first.stdout, second.stdout)
-        self.assertEqual(json.loads(first.stdout), {"schema_version": "synapse.artifact-contract-validation.v1", "valid": True, "documents": 8, "errors": []})
+        self.assertEqual(json.loads(first.stdout), {"schema_version": "synapse.artifact-contract-validation.v1", "valid": True, "documents": 11, "errors": []})

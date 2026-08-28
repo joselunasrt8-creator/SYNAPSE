@@ -89,6 +89,13 @@ def validate_collection(documents: list[dict[str, Any]]) -> list[str]:
         referenced.discard(None)
         for target in sorted(referenced - set(by_id)):
             errors.append(f"collection:{artifact_id} has unresolved reference {target}")
+        for edge in document.get("relationships", []):
+            target = by_id.get(edge["target_artifact_id"])
+            if target is not None and edge["target_artifact_type"] != target.get("artifact_type"):
+                errors.append(
+                    f"collection:{artifact_id} relationship {edge['type']} declares target type "
+                    f"{edge['target_artifact_type']} but {edge['target_artifact_id']} has type {target.get('artifact_type')}"
+                )
         for output_id in document.get("output_references", []):
             target = by_id.get(output_id)
             if target is not None and artifact_id not in target.get("input_references", []):

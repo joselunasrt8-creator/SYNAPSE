@@ -33,24 +33,28 @@
       "basis": "Corrected result differs from the earlier conclusion.",
       "legitimacy_inherited": false,
       "target_artifact_id": "urn:synapse:artifact:analysis-result:v1",
+      "target_artifact_type": "dependency-algebra.structural-evidence.v2",
       "type": "contradicts"
     },
     {
       "basis": "Reanalysis consumed the same model.",
       "legitimacy_inherited": false,
       "target_artifact_id": "urn:synapse:artifact:model-object:v1",
+      "target_artifact_type": "synapse.model-object.v1",
       "type": "derived_from"
     },
     {
-      "basis": "Fixture activity is described by the model artifact.",
+      "basis": "Receipt identifies the deterministic analysis activity.",
       "legitimacy_inherited": false,
-      "target_artifact_id": "urn:synapse:artifact:model-object:v1",
+      "target_artifact_id": "urn:synapse:artifact:production-receipt:v1",
+      "target_artifact_type": "synapse.production-receipt.v1",
       "type": "produced_by"
     },
     {
       "basis": "Corrects the analysis configuration.",
       "legitimacy_inherited": false,
       "target_artifact_id": "urn:synapse:artifact:model-object:v1",
+      "target_artifact_type": "synapse.model-object.v1",
       "type": "supersedes"
     }
   ],

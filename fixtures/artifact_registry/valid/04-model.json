@@ -34,12 +34,14 @@
       "basis": "Constructed from the evidence record.",
       "legitimacy_inherited": false,
       "target_artifact_id": "urn:synapse:artifact:evidence-record:v1",
+      "target_artifact_type": "synapse.evidence-record.v1",
       "type": "derived_from"
     },
     {
       "basis": "Encodes the evidence statement as a structural model.",
       "legitimacy_inherited": false,
       "target_artifact_id": "urn:synapse:artifact:evidence-record:v1",
+      "target_artifact_type": "synapse.evidence-record.v1",
       "type": "implements"
     }
   ],
