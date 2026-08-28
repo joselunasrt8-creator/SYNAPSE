@@ -1,0 +1,35 @@
+{
+  "artifact_id": "urn:synapse:artifact:production-receipt:v1",
+  "artifact_type": "synapse.production-receipt.v1",
+  "content_hash": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+  "input_references": [],
+  "lifecycle_state": "active",
+  "logical_id": "production-receipt",
+  "output_references": [],
+  "producer": {
+    "kind": "process",
+    "producer_id": "synapse.contract-fixture"
+  },
+  "provenance": {
+    "activity": {
+      "activity_id": "synapse.fixture.production-receipt",
+      "activity_version": "1"
+    },
+    "parameters": {},
+    "reproduction": [
+      "Load the declared production activity description.",
+      "Verify the production receipt content hash."
+    ],
+    "source_references": [
+      "repository:joselunasrt8-creator/SYNAPSE@issue-160"
+    ]
+  },
+  "relationships": [],
+  "schema_version": "synapse.artifact-registry-object.v1",
+  "validity": {
+    "assessed_by": null,
+    "basis": null,
+    "state": "unassessed"
+  },
+  "version": 1
+}

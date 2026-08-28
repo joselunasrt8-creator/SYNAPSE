@@ -1,0 +1,52 @@
+{
+  "artifact_id": "urn:synapse:artifact:evidence-record:v1",
+  "artifact_type": "synapse.evidence-record.v1",
+  "content_hash": "sha256:0000000000000000000000000000000000000000000000000000000000000003",
+  "input_references": [
+    "urn:synapse:artifact:observation:v1"
+  ],
+  "lifecycle_state": "active",
+  "logical_id": "evidence-record",
+  "output_references": [
+    "urn:synapse:artifact:model-object:v1"
+  ],
+  "producer": {
+    "kind": "process",
+    "producer_id": "synapse.contract-fixture"
+  },
+  "provenance": {
+    "activity": {
+      "activity_id": "synapse.fixture.evidence",
+      "activity_version": "1"
+    },
+    "parameters": {},
+    "reproduction": [
+      "Load the declared inputs for evidence.",
+      "Apply synapse.fixture.evidence version 1 and verify the content hash."
+    ],
+    "source_references": [
+      "repository:joselunasrt8-creator/SYNAPSE@issue-160"
+    ]
+  },
+  "relationships": [
+    {
+      "basis": "Normalized observation into an evidence record.",
+      "legitimacy_inherited": false,
+      "target_artifact_id": "urn:synapse:artifact:observation:v1",
+      "type": "derived_from"
+    },
+    {
+      "basis": "Preserves the observed dependency statement.",
+      "legitimacy_inherited": false,
+      "target_artifact_id": "urn:synapse:artifact:observation:v1",
+      "type": "supports"
+    }
+  ],
+  "schema_version": "synapse.artifact-registry-object.v1",
+  "validity": {
+    "assessed_by": null,
+    "basis": null,
+    "state": "unassessed"
+  },
+  "version": 1
+}

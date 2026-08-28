@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://synapse.local/schemas/artifact-registry-object.schema.json",
+  "title": "SYNAPSE Artifact Registry Object v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "artifact_id", "logical_id", "artifact_type", "version", "producer", "input_references", "output_references", "provenance", "content_hash", "lifecycle_state", "validity", "relationships"],
+  "properties": {
+    "schema_version": {"const": "synapse.artifact-registry-object.v1"},
+    "artifact_id": {"$ref": "#/$defs/artifactId"},
+    "logical_id": {"$ref": "#/$defs/logicalId"},
+    "artifact_type": {"type": "string", "pattern": "^[a-z][a-z0-9.-]*\\.v[1-9][0-9]*$"},
+    "version": {"type": "integer", "minimum": 1},
+    "producer": {
+      "type": "object", "additionalProperties": false,
+      "required": ["producer_id", "kind"],
+      "properties": {
+        "producer_id": {"type": "string", "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_.:/@-]*$"},
+        "kind": {"enum": ["person", "system", "process", "repository"]}
+      }
+    },
+    "input_references": {"$ref": "#/$defs/artifactIdSet"},
+    "output_references": {"$ref": "#/$defs/artifactIdSet"},
+    "provenance": {
+      "type": "object", "additionalProperties": false,
+      "required": ["source_references", "activity", "parameters", "reproduction"],
+      "properties": {
+        "source_references": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+        "activity": {
+          "type": "object", "additionalProperties": false,
+          "required": ["activity_id", "activity_version"],
+          "properties": {
+            "activity_id": {"type": "string", "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_.:/@-]*$"},
+            "activity_version": {"type": "string", "minLength": 1}
+          }
+        },
+        "parameters": {"type": "object"},
+        "reproduction": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}}
+      }
+    },
+    "content_hash": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
+    "lifecycle_state": {"enum": ["draft", "active", "deprecated", "superseded", "withdrawn", "archived"]},
+    "validity": {
+      "type": "object", "additionalProperties": false,
+      "required": ["state", "assessed_by", "basis"],
+      "properties": {
+        "state": {"enum": ["unassessed", "valid", "invalid", "indeterminate"]},
+        "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+        "assessed_by": {"type": ["string", "null"], "minLength": 1},
+        "basis": {"type": ["string", "null"], "minLength": 1}
+      },
+      "allOf": [
+        {"if": {"properties": {"state": {"const": "unassessed"}}, "required": ["state"]}, "then": {"properties": {"assessed_by": {"type": "null"}, "basis": {"type": "null"}}, "not": {"required": ["confidence"]}}},
+        {"if": {"properties": {"state": {"enum": ["valid", "invalid", "indeterminate"]}}, "required": ["state"]}, "then": {"properties": {"assessed_by": {"type": "string"}, "basis": {"type": "string"}}}}
+      ]
+    },
+    "supersession": {
+      "type": "object", "additionalProperties": false,
+      "required": ["previous_artifact_id", "previous_version", "reason"],
+      "properties": {
+        "previous_artifact_id": {"$ref": "#/$defs/artifactId"},
+        "previous_version": {"type": "integer", "minimum": 1},
+        "reason": {"type": "string", "minLength": 1}
+      }
+    },
+    "relationships": {
+      "type": "array", "uniqueItems": true,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["type", "target_artifact_id", "basis", "legitimacy_inherited"],
+        "properties": {
+          "type": {"enum": ["produced_by", "derived_from", "supports", "contradicts", "supersedes", "implements", "validated_by", "authorized_by", "executed_as"]},
+          "target_artifact_id": {"$ref": "#/$defs/artifactId"},
+          "basis": {"type": ["string", "null"], "minLength": 1},
+          "legitimacy_inherited": {"const": false}
+        }
+      }
+    }
+  },
+  "$defs": {
+    "logicalId": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$"},
+    "artifactId": {"type": "string", "pattern": "^urn:synapse:artifact:[a-z0-9][a-z0-9._-]*:v[1-9][0-9]*$"},
+    "artifactIdSet": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/artifactId"}}
+  }
+}

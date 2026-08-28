@@ -1,0 +1,53 @@
+{
+  "artifact_id": "urn:synapse:artifact:model-object:v1",
+  "artifact_type": "synapse.model-object.v1",
+  "content_hash": "sha256:0000000000000000000000000000000000000000000000000000000000000004",
+  "input_references": [
+    "urn:synapse:artifact:evidence-record:v1"
+  ],
+  "lifecycle_state": "active",
+  "logical_id": "model-object",
+  "output_references": [
+    "urn:synapse:artifact:analysis-result:v1",
+    "urn:synapse:artifact:analysis-result:v2"
+  ],
+  "producer": {
+    "kind": "process",
+    "producer_id": "synapse.contract-fixture"
+  },
+  "provenance": {
+    "activity": {
+      "activity_id": "synapse.fixture.model",
+      "activity_version": "1"
+    },
+    "parameters": {},
+    "reproduction": [
+      "Load the declared inputs for model.",
+      "Apply synapse.fixture.model version 1 and verify the content hash."
+    ],
+    "source_references": [
+      "repository:joselunasrt8-creator/SYNAPSE@issue-160"
+    ]
+  },
+  "relationships": [
+    {
+      "basis": "Constructed from the evidence record.",
+      "legitimacy_inherited": false,
+      "target_artifact_id": "urn:synapse:artifact:evidence-record:v1",
+      "type": "derived_from"
+    },
+    {
+      "basis": "Encodes the evidence statement as a structural model.",
+      "legitimacy_inherited": false,
+      "target_artifact_id": "urn:synapse:artifact:evidence-record:v1",
+      "type": "implements"
+    }
+  ],
+  "schema_version": "synapse.artifact-registry-object.v1",
+  "validity": {
+    "assessed_by": null,
+    "basis": null,
+    "state": "unassessed"
+  },
+  "version": 1
+}
