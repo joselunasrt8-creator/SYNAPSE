@@ -76,7 +76,9 @@ class TraceabilityManifestTests(unittest.TestCase):
         ]
         for workflow in workflows:
             with self.subTest(workflow=workflow.name):
-                self.assertIn(CANONICAL_TEST_COMMAND, workflow.read_text(encoding="utf-8"))
+                workflow_text = workflow.read_text(encoding="utf-8")
+                self.assertIn("git rev-parse HEAD", workflow_text)
+                self.assertIn(CANONICAL_TEST_COMMAND, workflow_text)
 
     def test_ci_runs_traceability_validation(self):
         workflows = [

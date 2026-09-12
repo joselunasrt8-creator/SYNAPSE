@@ -35,7 +35,9 @@ jobs:
         run: python -m pip install -r requirements-dev.txt
 
       - name: Run tests
-        run: python -m pytest tests
+        run: |
+          git rev-parse HEAD
+          python -m pytest tests
 
       - name: Check traceability
         run: python scripts/check_traceability.py
