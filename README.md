@@ -215,6 +215,20 @@ python -m pytest tests
 
 The CLI determinism tests compile the same fixture repeatedly and compare byte-identical artifact output.
 
+Repository traceability is checked through two deliberately separate paths:
+
+```bash
+python scripts/check_traceability.py
+python scripts/check_traceability_symbols.py
+```
+
+`check_traceability.py` is repository-static: it reads the manifest, Markdown, and
+referenced paths but does not import project implementation modules. It establishes
+source correspondence only. `check_traceability_symbols.py` is executable validation:
+it imports every referenced Python implementation module and confirms that the named
+symbol is exposed, so module top-level code can execute. Neither result demonstrates
+runtime conformance, external conformance, scientific correctness, or authority.
+
 Test evidence is interpreted in layers: a test file existing does not mean that it is
 selected, selection does not mean that it executed, execution does not by itself prove
 a scientific claim, and green CI does not establish structural truth. The required CI

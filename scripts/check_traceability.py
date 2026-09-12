@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-"""Validate SYNAPSE specification-to-implementation traceability metadata."""
+"""Validate SYNAPSE traceability metadata using repository-static checks only."""
 
 from __future__ import annotations
 
 import argparse
-import importlib
 import json
 import re
 import sys
@@ -59,9 +58,9 @@ def main(argv: list[str] | None = None) -> int:
     elif warnings:
         for warning in warnings:
             print(f"WARNING: {warning}")
-        print("traceability validation passed")
+        print("static traceability validation passed")
     else:
-        print("traceability validation passed")
+        print("static traceability validation passed")
     return 0 if not errors else 1
 
 
@@ -112,7 +111,6 @@ def validate_manifest(path: Path) -> tuple[list[str], list[str]]:
             optional_path = entry.get(optional_path_field, "")
             if optional_path:
                 _validate_existing_file(optional_path, f"{prefix}.{optional_path_field}", errors)
-        _validate_symbol(entry.get("implementation_path", ""), entry.get("implementation_symbol", ""), prefix, errors)
 
     if not any(ref.startswith("SPEC.md#7-frozen-contract-index") for ref in spec_refs_seen):
         errors.append("SPEC.md frozen contract index must have an explicit traceability entry")
@@ -121,7 +119,6 @@ def validate_manifest(path: Path) -> tuple[list[str], list[str]]:
         if behavior.get("status") != "MISSING_SPECIFICATION":
             warnings.append(f"{prefix} should use MISSING_SPECIFICATION status")
         _validate_existing_file(behavior.get("implementation_path", ""), f"{prefix}.implementation_path", errors)
-        _validate_symbol(behavior.get("implementation_path", ""), behavior.get("implementation_symbol", ""), prefix, errors)
     return errors, warnings
 
 
@@ -157,19 +154,6 @@ def _validate_existing_file(path_text: str, field: str, errors: list[str]) -> No
         return
     if not (ROOT / path_text).is_file():
         errors.append(f"{field} does not exist: {path_text}")
-
-
-def _validate_symbol(path_text: str, symbol: str, prefix: str, errors: list[str]) -> None:
-    if not path_text or not symbol or not path_text.endswith(".py") or not (ROOT / path_text).is_file():
-        return
-    module_name = path_text[:-3].replace("/", ".")
-    try:
-        module = importlib.import_module(module_name)
-    except Exception as exc:  # deterministic validation surface, not an import guard
-        errors.append(f"{prefix}.implementation_path could not be imported: {module_name}: {exc}")
-        return
-    if not hasattr(module, symbol):
-        errors.append(f"{prefix}.implementation_symbol not found: {module_name}.{symbol}")
 
 
 if __name__ == "__main__":

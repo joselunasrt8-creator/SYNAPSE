@@ -181,9 +181,9 @@
       "implementation_path": "scripts/check_traceability.py",
       "implementation_symbol": "main",
       "test_path": "tests/traceability_tests.py",
-      "artifact_or_output": "registry/traceability.json validation report",
+      "artifact_or_output": "repository-static registry/traceability.json validation report",
       "status": "VERIFIED",
-      "evidence": "Traceability validator checks spec refs, implementation/test paths, symbols, statuses, and missing correspondence failure behavior.",
+      "evidence": "The repository-static validator checks spec refs, implementation/test/schema/fixture paths, statuses, and missing correspondence failure behavior without importing project implementation modules; scripts/check_traceability_symbols.py separately imports modules and checks declared symbols.",
       "exact_gap": ""
     },
     {
