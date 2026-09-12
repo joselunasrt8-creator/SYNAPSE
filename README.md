@@ -215,6 +215,13 @@ python -m pytest tests
 
 The CLI determinism tests compile the same fixture repeatedly and compare byte-identical artifact output.
 
+Test evidence is interpreted in layers: a test file existing does not mean that it is
+selected, selection does not mean that it executed, execution does not by itself prove
+a scientific claim, and green CI does not establish structural truth. The required CI
+workflows therefore print the tested Git revision, run the canonical suite above, and
+check mechanically that every test module remains reachable through its configured
+collection patterns.
+
 ---
 
 ## Normative Contracts
