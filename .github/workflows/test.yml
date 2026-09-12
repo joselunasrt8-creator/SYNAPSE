@@ -24,5 +24,8 @@ jobs:
           git rev-parse HEAD
           python -m pytest tests
 
-      - name: Check traceability
+      - name: Check static traceability
         run: python scripts/check_traceability.py
+
+      - name: Check imported traceability symbols
+        run: python scripts/check_traceability_symbols.py
