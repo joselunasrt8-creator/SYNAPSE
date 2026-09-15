@@ -25,6 +25,8 @@ Dependency Algebra is the current reference implementation and the first impleme
 
 The current implementation includes a structural compiler, analysis engine, canonical serialization utilities, public APIs, deterministic evidence artifacts, and a command-line interface.
 
+> **Positioning boundary:** SYNAPSE produces structural evidence. It does not determine authority, legitimacy, execution eligibility, policy validity, or whether an external action should occur. Its inclusion in a production or Continufy runtime topology is optional and must be justified by measured downstream value.
+
 ---
 
 ## Core Runtime
@@ -42,6 +44,8 @@ Deterministic Structural Result
         ↓
 Structural Evidence Artifact
 ```
+
+The runtime terminates at evidence emission. Any consumer that uses SYNAPSE evidence for a decision owns the semantics, authority, policy, and consequences of that decision.
 
 ---
 
@@ -65,6 +69,8 @@ Where:
 - `Reach(W)` is directed path existence from any workload root to the workload target.
 
 The result is structural evidence: deterministic facts about topology and analysis semantics.
+
+Structural evidence is not, by itself, a recommendation, approval, authorization, risk determination, or execution decision.
 
 ---
 
@@ -139,6 +145,18 @@ The CLI emits a structural evidence artifact constrained by [`schemas/artifact.s
 The compiler facade also exposes a deterministic hash receipt for callers that need receipt-shaped structural evidence rather than the full artifact.
 
 Structural results are analysis outputs such as reachability, dependency, and classification. Structural evidence artifacts are serialized, hash-addressed payloads that carry those results across the public boundary.
+
+A downstream system may consume these artifacts as evidence, but that does not transfer decision authority to SYNAPSE.
+
+```text
+Structural evidence
+        ≠
+Authority
+        ≠
+Execution eligibility
+        ≠
+Execution
+```
 
 ---
 
@@ -222,19 +240,9 @@ python scripts/check_traceability.py
 python scripts/check_traceability_symbols.py
 ```
 
-`check_traceability.py` is repository-static: it reads the manifest, Markdown, and
-referenced paths but does not import project implementation modules. It establishes
-source correspondence only. `check_traceability_symbols.py` is executable validation:
-it imports every referenced Python implementation module and confirms that the named
-symbol is exposed, so module top-level code can execute. Neither result demonstrates
-runtime conformance, external conformance, scientific correctness, or authority.
+`check_traceability.py` is repository-static: it reads the manifest, Markdown, and referenced paths but does not import project implementation modules. It establishes source correspondence only. `check_traceability_symbols.py` is executable validation: it imports every referenced Python implementation module and confirms that the named symbol is exposed, so module top-level code can execute. Neither result demonstrates runtime conformance, external conformance, scientific correctness, authority, production value, or economic value.
 
-Test evidence is interpreted in layers: a test file existing does not mean that it is
-selected, selection does not mean that it executed, execution does not by itself prove
-a scientific claim, and green CI does not establish structural truth. The required CI
-workflows therefore print the tested Git revision, run the canonical suite above, and
-check mechanically that every test module remains reachable through its configured
-collection patterns.
+Test evidence is interpreted in layers: a test file existing does not mean that it is selected, selection does not mean that it executed, execution does not by itself prove a scientific claim, and green CI does not establish structural truth. The required CI workflows therefore print the tested Git revision, run the canonical suite above, and check mechanically that every test module remains reachable through its configured collection patterns.
 
 ---
 
@@ -274,6 +282,40 @@ It:
 SYNAPSE deliberately ends at structural evidence.
 
 `VALID`, `DEGRADED`, and `NULL` are structural classifications only. They summarize deterministic analysis results and do not cause external actions or state changes.
+
+SYNAPSE does not own:
+
+- authority or delegation;
+- policy approval;
+- execution eligibility;
+- external mutation;
+- replay prevention for external actions;
+- proof of authorization;
+- reconciliation of intended and executed external state; or
+- governance of another repository or runtime.
+
+### Continufy topology boundary
+
+SYNAPSE is a candidate evidence-producing technology within the broader Continufy research ecosystem, not a mandatory stage in a fixed pipeline.
+
+Possible evidence-supported outcomes include:
+
+- SYNAPSE remains an independent structural-analysis instrument;
+- selected SYNAPSE evidence becomes an optional input to another system;
+- SYNAPSE specializes around a narrower class of structural questions; or
+- a production path does not require SYNAPSE at all.
+
+No ecosystem relationship changes the meaning of a SYNAPSE artifact or grants it authority.
+
+### Evidence boundary
+
+Repository conformance establishes that the implementation satisfies its declared deterministic contracts under tested conditions. It does not, by itself, establish that SYNAPSE improves engineering decisions, predicts operational outcomes, reduces incidents, is required by Continufy, or has commercial value.
+
+Those are empirical questions for external or prospectively designed evaluation.
+
+A useful falsification question is:
+
+> Does deterministic structural evidence from SYNAPSE change or improve consequential engineering decisions compared with a strong baseline that does not use SYNAPSE?
 
 ---
 
