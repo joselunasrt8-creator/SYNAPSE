@@ -1,169 +1,126 @@
 # SYNAPSE
 
-<p align="center">
-  <img
-    src="FEE00044-FF76-4C31-8D1C-E534773819C2.png"
-    alt="SYNAPSE — Structural Analysis Engine & Framework"
-    width="100%">
-</p>
-
 ## Deterministic Structural Analysis Framework
 
-SYNAPSE transforms declared software topology into deterministic structural analyses and reproducible structural evidence.
+SYNAPSE compiles declared software topology into deterministic structural-analysis results and reproducible evidence artifacts.
+
+Its current research/engineering question is:
+
+> **Given an explicitly declared topology and analysis contract, can SYNAPSE reproducibly compute structural properties of that model?**
 
 ```text
-Topology
-    ↓
-Canonical Structural Representation
-    ↓
-Deterministic Structural Analysis
-    ↓
-Structural Evidence
+Declared topology
+      ↓
+Validation + canonical representation
+      ↓
+Registered deterministic analysis
+      ↓
+Structural result
+      ↓
+Reproducible evidence artifact
 ```
 
-Dependency Algebra is the current reference implementation and the first implemented structural analysis. It demonstrates the framework without defining its complete identity.
+Dependency Algebra is the current reference implementation and first registered analysis. It demonstrates the framework's compiler and evidence architecture without establishing that SYNAPSE captures all meaningful properties of real software systems.
 
-The current implementation includes a structural compiler, analysis engine, canonical serialization utilities, public APIs, deterministic evidence artifacts, and a command-line interface.
+## What SYNAPSE currently establishes
 
----
+For accepted inputs and implemented contracts, SYNAPSE can support claims about:
 
-## Core Runtime
+- deterministic parsing, validation, and normalization;
+- canonical structural representation;
+- deterministic complement projection and directed reachability;
+- the implemented dependency predicate;
+- deterministic structural classification under that predicate;
+- canonical serialization and hash-addressed evidence; and
+- byte-identical replay where specified by the determinism contract.
 
-```text
-Source Topology
-        ↓
-Validation
-        ↓
-Canonical Structural Representation
-        ↓
-Registered Structural Analysis
-        ↓
-Deterministic Structural Result
-        ↓
-Structural Evidence Artifact
-```
+These are properties of the declared model and implemented analysis semantics.
 
----
+## Core analysis boundary
 
-## What Problem Does Structural Analysis Solve?
-
-Structural analysis answers repeatable questions about software structure.
-
-SYNAPSE performs these analyses using canonical structural representations and deterministic analysis passes. Dependency Algebra is the first implemented structural analysis and asks whether removing a workload's candidate component set eliminates all directed paths from workload roots to the workload target.
-
-The core implemented predicate is:
+The implemented Dependency Algebra predicate is:
 
 ```text
 Dependency(S, W) ⇔ Reach(W | ¬S) = ∅
 ```
 
-Where:
+Where `W` is a declared workload, `S` is its candidate component set, `¬S` removes those components and incident edges, and `Reach` asks whether a directed path remains from a workload root to its target.
 
-- `W` is a workload with roots, target, candidate component set, and expected structural classification.
-- `S` is the workload candidate component set.
-- `¬S` is complement projection: remove each component in `S` and every incident edge.
-- `Reach(W)` is directed path existence from any workload root to the workload target.
+The predicate answers a precise graph-model question. It does not by itself establish runtime necessity, causal dependence, failure probability, business criticality, security risk, performance impact, organizational ownership, or execution legitimacy.
 
-The result is structural evidence: deterministic facts about topology and analysis semantics.
+## Model versus system
 
----
+SYNAPSE analyzes the topology supplied to it. Therefore:
+
+```text
+Deterministic result ≠ complete real-world model
+Canonical topology ≠ observed runtime topology
+Structural dependency ≠ causal necessity in every environment
+VALID / DEGRADED / NULL ≠ execution permission
+Evidence artifact ≠ authority
+```
+
+If the source topology omits a component, edge, dynamic dependency, conditional behavior, runtime configuration, external service, or relevant state transition, the deterministic result can still be internally correct for the declared model while being incomplete as a description of the deployed system.
+
+Model fidelity is therefore a separate empirical problem from compiler determinism.
 
 ## Inputs
 
-SYNAPSE currently accepts UTF-8 JSON topology documents constrained by [`schemas/topology.schema.json`](schemas/topology.schema.json). A topology document contains:
+SYNAPSE currently accepts UTF-8 JSON topology documents constrained by `schemas/topology.schema.json`. Inputs declare components, directed edges, workloads, roots, targets, candidate component sets, and expected structural classifications under the current schema.
 
-- `schema_version`: currently `dependency-algebra.topology.v1`
-- `topology_id`: stable topology identifier
-- `components`: component identifiers plus optional `type` and string `labels`
-- `edges`: directed edges with stable identifiers, `from`, `to`, and optional string `labels`
-- `workloads`: workload identifiers, root components, target component, candidate component set, and expected structural classification
+Invalid input is rejected before analysis. Accepted input is normalized into canonical IR as defined by `AST_IR_CONTRACT.md` and `schemas/ir.schema.json`.
 
-Fixtures under [`fixtures/`](fixtures/) provide accepted, rejected, diagnostic, determinism, projection, reachability, dependency, and artifact examples.
+The normalized representation has a deterministic SHA-256 identity over canonical UTF-8 JSON bytes.
 
----
+## Registered analyses
 
-## Validation and Normalization
+The currently implemented registered analysis is Dependency Algebra, including:
 
-Validation is layered and fail-closed:
+- complement projection;
+- directed reachability;
+- dependency-predicate evaluation; and
+- aggregate structural classification as `VALID`, `DEGRADED`, or `NULL`.
 
-1. Parse UTF-8 JSON source.
-2. Validate source shape and schema version.
-3. Construct source-faithful topology objects for diagnostics.
-4. Perform deterministic semantic validation, including duplicate identifiers and unresolved references.
-5. Normalize accepted input into canonical IR.
+Unimplemented analyses are not capabilities of the current system.
 
-Invalid input is rejected before analysis. Rejected input is not assigned a `VALID`, `DEGRADED`, or `NULL` structural classification.
+A proposed future analysis should not be treated as part of SYNAPSE merely because it is conceptually compatible. It should enter the registry only after its structural question, semantics, schemas, fixtures, evidence boundary, and tests are explicit.
 
-Canonical IR is defined by [`AST_IR_CONTRACT.md`](AST_IR_CONTRACT.md) and [`schemas/ir.schema.json`](schemas/ir.schema.json). Its identity is `normalized_ir_hash`, a SHA-256 digest over canonical UTF-8 JSON bytes with sorted object keys, compact separators, canonical set ordering, and no trailing newline.
+## Classification semantics
 
-Diagnostic behavior is defined by [`COMPILER_FRONTEND_CONTRACT.md`](COMPILER_FRONTEND_CONTRACT.md), [`schemas/diagnostic.schema.json`](schemas/diagnostic.schema.json), and [`fixtures/diagnostics/`](fixtures/diagnostics/).
+`VALID`, `DEGRADED`, and `NULL` are structural classifications within registered analysis contracts.
 
----
+They do not mean:
 
-## Registered Structural Analyses
+- safe / unsafe;
+- authorized / unauthorized;
+- healthy / unhealthy;
+- should deploy / should not deploy;
+- legitimate / illegitimate; or
+- economically valuable / valueless.
 
-The currently implemented structural analysis is Dependency Algebra. It includes these deterministic passes:
+Any downstream system using a structural classification to make a decision owns the mapping from structural evidence to that decision.
 
-- complement projection over canonical IR
-- directed reachability from workload roots to workload target
-- dependency predicate evaluation over projected reachability
-- aggregate structural classification as `VALID`, `DEGRADED`, or `NULL`
+## Structural evidence
 
-The implemented analysis is registered through the deterministic core analysis registry. Future analyses can fit SYNAPSE by registering additional deterministic analysis passes over canonical structural representation and emitting structural results with explicit contracts, schemas, fixtures, and tests.
+SYNAPSE can emit deterministic structural evidence artifacts containing source/compiler versions, input and normalized-IR hashes, analysis results, provenance, diagnostics, and artifact identity as defined by the repository's schemas.
 
-Unimplemented analyses are not currently available.
+An evidence artifact supports reproducibility and inspection of the implemented analysis. It does not prove that the source topology was complete or correct, that the analysis question was the right one, or that a downstream interpretation is valid.
 
----
+## Determinism boundary
 
-## Structural Evidence
+SYNAPSE determinism requires canonical ordering/serialization, stable hash boundaries, deterministic diagnostics, and exclusion of nondeterministic environment values from compiler artifacts.
 
-SYNAPSE emits deterministic structural results and structural evidence artifacts.
+Run the current regression/conformance suite with:
 
-The CLI emits a structural evidence artifact constrained by [`schemas/artifact.schema.json`](schemas/artifact.schema.json). The current artifact includes:
-
-- artifact and source schema versions
-- compiler and package versions
-- `input_hash`
-- `normalized_ir_hash`
-- aggregate `classification`
-- `reachability_graph`
-- `dependency_lattice`
-- `failure_surface`
-- `redundancy_map`
-- `k_of_n_resilience_profile`
-- `annihilation_conditions`
-- diagnostics, warnings, and errors arrays
-- provenance with the implemented pipeline and analysis result hash
-- `artifact_hash`
-
-The compiler facade also exposes a deterministic hash receipt for callers that need receipt-shaped structural evidence rather than the full artifact.
-
-Structural results are analysis outputs such as reachability, dependency, and classification. Structural evidence artifacts are serialized, hash-addressed payloads that carry those results across the public boundary.
-
----
-
-## Compiler Pipeline
-
-The current implementation maps the core runtime to these concrete stages:
-
-```text
-Source topology
-  → parse_topology
-  → validate_and_normalize
-  → canonical IR
-  → registered Dependency Algebra analysis
-  → projection, reachability, dependency predicate, classification
-  → AnalysisResult
-  → serialization
-  → artifact or hash receipt
-  → CLI / public API consumer
+```bash
+python -m pytest tests
 ```
 
-Compiler stages exchange immutable typed artifacts. Serialization owns dictionary conversion and canonical JSON. Hashing owns artifact identity across serialized payload boundaries. Compatibility APIs cross the serialization boundary explicitly so public functions and CLI output remain dictionary- and JSON-shaped while the core compiler remains artifact-oriented.
+Repository traceability and executable symbol checks provide additional evidence that documented implementation references remain connected to repository code.
 
----
+These checks establish implementation correspondence and reproducibility—not scientific truth about arbitrary external systems.
 
-## SYNAPSE CLI
+## CLI
 
 The stable command shape is:
 
@@ -171,122 +128,97 @@ The stable command shape is:
 python -m dependency_algebra.cli compile --input fixtures/basic.json --output out/artifact.json
 ```
 
-The package also installs a `synapse` console script when installed from [`pyproject.toml`](pyproject.toml):
+or, when installed:
 
 ```bash
 synapse compile --input fixtures/basic.json --output out/artifact.json
 ```
 
-The CLI compiles canonical topology JSON into a deterministic structural evidence artifact. On success, it writes the artifact to `--output` and writes no success output to stdout or stderr. Diagnostics are canonical machine-readable JSON on stderr.
+The CLI compiles accepted topology JSON into a deterministic structural evidence artifact and does not mutate the input.
 
-Stable exit codes:
+## Normative contracts
 
-| Code | Meaning |
-| ---: | --- |
-| 0 | Success |
-| 1 | Input, schema, or validation failure |
-| 2 | Compiler semantic failure |
-| 3 | Artifact emission failure |
-| 4 | Unexpected runtime failure |
+`SPEC.md` is the repository-level contract index. The implemented contract surface includes topology schemas, AST/IR semantics, frontend validation/diagnostics, complement projection, reachability, dependency predicate, classification, artifact/receipt evidence, fixtures, and determinism requirements.
 
-The CLI never mutates input files.
+Those contracts define what SYNAPSE computes. They should not be expanded by README language beyond what the implementation and tests support.
 
----
+## Relationship to Structology
 
-## Determinism Validation
+SYNAPSE is an analysis engine/framework. Structology, where used in the Continufy research ecosystem, is the broader investigation of structural properties, invariants, dependencies, boundaries, and transformations.
 
-Determinism is defined by [`DETERMINISM.md`](DETERMINISM.md). SYNAPSE determinism requires:
+A useful separation is:
 
-- canonical object ordering
-- canonical UTF-8 JSON bytes
-- SHA-256 hash boundaries
-- no wall-clock timestamps in compiler artifacts
-- no random identifiers in compiler artifacts
-- no machine-local absolute paths in compiler artifacts
-- no environment-derived values in compiler artifacts
-- deterministic diagnostic ordering
-- byte-identical replay for the same accepted input
-
-Run the conformance and regression suite:
-
-```bash
-python -m pytest tests
+```text
+Structology
+Research questions / structural theory
+        ↓ may define
+Formal structural analysis
+        ↓ may be implemented by
+SYNAPSE
+Deterministic compiler / analysis / evidence
 ```
 
-The CLI determinism tests compile the same fixture repeatedly and compare byte-identical artifact output.
+SYNAPSE should not be treated as proof of a broader structural theory merely because it implements one formal analysis.
 
-Repository traceability is checked through two deliberately separate paths:
+## Relationship to MindShift and ContinuityOS
 
-```bash
-python scripts/check_traceability.py
-python scripts/check_traceability_symbols.py
+SYNAPSE can provide structural evidence to other systems, but it does not own cognition or execution legitimacy.
+
+```text
+MindShift: context / candidate cognition
+SYNAPSE: deterministic structural analysis
+ContinuityOS: legitimacy / execution-boundary mechanisms
 ```
 
-`check_traceability.py` is repository-static: it reads the manifest, Markdown, and
-referenced paths but does not import project implementation modules. It establishes
-source correspondence only. `check_traceability_symbols.py` is executable validation:
-it imports every referenced Python implementation module and confirms that the named
-symbol is exposed, so module top-level code can execute. Neither result demonstrates
-runtime conformance, external conformance, scientific correctness, or authority.
+No mandatory dependency follows from ecosystem membership. A downstream consumer must justify why SYNAPSE evidence is relevant to its own decision.
 
-Test evidence is interpreted in layers: a test file existing does not mean that it is
-selected, selection does not mean that it executed, execution does not by itself prove
-a scientific claim, and green CI does not establish structural truth. The required CI
-workflows therefore print the tested Git revision, run the canonical suite above, and
-check mechanically that every test module remains reachable through its configured
-collection patterns.
+## Evaluation program
 
----
+The next high-value work is not simply adding analyses. It is testing whether the current structural model corresponds to consequential properties of real software systems.
 
-## Normative Contracts
+Priority experiments:
 
-[`SPEC.md`](SPEC.md) is the authoritative repository-level index for SYNAPSE contracts. The current normative contract set includes:
+1. **Model fidelity** — compare declared SYNAPSE topology against independently observed build/runtime/deployment dependencies.
+2. **Perturbation validation** — remove or isolate components predicted to be dependencies and observe whether the real workload loses the modeled path/capability.
+3. **Baseline comparison** — compare SYNAPSE outputs with standard graph/dependency tooling and determine what unique evidence it adds.
+4. **Dynamic-topology challenge** — test systems with plugins, reflection, runtime service discovery, feature flags, generated code, and environment-dependent edges.
+5. **Cross-repository replication** — apply the same frozen analysis to unrelated repositories without modifying semantics after seeing outcomes.
+6. **Downstream usefulness** — test whether structural evidence improves a concrete engineering decision relative to a strong baseline.
 
-| Contract area | Canonical source |
-| --- | --- |
-| Repository ownership and exclusions | [`BOUNDARY.md`](BOUNDARY.md) |
-| Topology source schema | [`schemas/topology.schema.json`](schemas/topology.schema.json) |
-| AST and canonical IR | [`AST_IR_CONTRACT.md`](AST_IR_CONTRACT.md), [`schemas/ast.schema.json`](schemas/ast.schema.json), [`schemas/ir.schema.json`](schemas/ir.schema.json) |
-| Frontend parse, validation, normalization, diagnostics | [`COMPILER_FRONTEND_CONTRACT.md`](COMPILER_FRONTEND_CONTRACT.md), [`schemas/diagnostic.schema.json`](schemas/diagnostic.schema.json), [`fixtures/diagnostics/`](fixtures/diagnostics/) |
-| Complement projection | [`COMPLEMENT_PROJECTION_CONTRACT.md`](COMPLEMENT_PROJECTION_CONTRACT.md), [`schemas/projection.schema.json`](schemas/projection.schema.json), [`fixtures/projection/`](fixtures/projection/) |
-| Reachability | [`REACHABILITY_CONTRACT.md`](REACHABILITY_CONTRACT.md), [`schemas/reachability.schema.json`](schemas/reachability.schema.json), [`fixtures/reachability/`](fixtures/reachability/) |
-| Dependency predicate | [`DEPENDENCY_PREDICATE_CONTRACT.md`](DEPENDENCY_PREDICATE_CONTRACT.md), [`schemas/dependency.schema.json`](schemas/dependency.schema.json), [`fixtures/dependency/`](fixtures/dependency/) |
-| Classification | [`schemas/classification.schema.json`](schemas/classification.schema.json), [`fixtures/valid/`](fixtures/valid/), [`fixtures/degraded/`](fixtures/degraded/), [`fixtures/null/`](fixtures/null/) |
-| Artifact and receipt evidence | [`schemas/artifact.schema.json`](schemas/artifact.schema.json), [`schemas/structural-evidence.schema.json`](schemas/structural-evidence.schema.json), [`DETERMINISM.md`](DETERMINISM.md) |
-| Fixture catalog | [`FIXTURES.md`](FIXTURES.md) |
-| Architecture closure | [`ARCHITECTURE_CLOSURE_REPORT.md`](ARCHITECTURE_CLOSURE_REPORT.md) |
+Each experiment should freeze its topology-acquisition method, analysis version, comparator, outcome measure, and claim ceiling before execution.
 
----
+## Falsification boundary
 
-## Repository Boundary
+SYNAPSE should be narrowed or its claims weakened if evidence shows that:
 
-SYNAPSE is limited to deterministic structural analysis.
+- declared topology cannot achieve sufficient fidelity for the intended use;
+- the dependency predicate does not correspond to consequential real-system behavior;
+- standard existing tools produce equivalent results with lower complexity;
+- deterministic evidence adds no meaningful downstream value;
+- analyses fail to transfer across software architectures; or
+- downstream users cannot reliably interpret the classifications without unsupported assumptions.
 
-It:
+Negative results are valid research outcomes.
 
-- accepts declared topology
-- validates and normalizes structural input
-- constructs canonical structural representations
-- executes registered structural analyses
-- produces deterministic structural results
-- serializes structural evidence artifacts
+## Repository boundary
+
+SYNAPSE is limited to deterministic structural analysis over declared inputs.
+
+It does not:
+
+- discover complete real-world topology by default;
+- infer missing runtime edges as fact;
+- establish causality from graph structure alone;
+- create authority or permission;
+- execute or mutate external systems;
+- determine legitimacy;
+- prove scientific theories by passing tests; or
+- establish product value from internal conformance.
 
 SYNAPSE deliberately ends at structural evidence.
 
-`VALID`, `DEGRADED`, and `NULL` are structural classifications only. They summarize deterministic analysis results and do not cause external actions or state changes.
+## Current conclusion
 
----
+SYNAPSE has a concrete implemented compiler/analysis/evidence architecture and a precise first analysis in Dependency Algebra. Its strongest supported claim is that it can deterministically analyze declared topology according to explicit contracts and emit reproducible structural evidence.
 
-## Future Structural Analyses
-
-Future structural analyses may be added as additional deterministic analysis passes over the canonical structural representation. A future analysis should define:
-
-- the structural question it answers
-- the canonical input object it consumes
-- deterministic semantics and ordering rules
-- result and evidence artifact fields
-- schema and fixture coverage
-- conformance tests
-- hash boundaries, if the result crosses a serialized evidence boundary
-
-Every registered structural analysis operates over the canonical structural representation and preserves SYNAPSE's deterministic analysis model.
+The next claim to earn is external correspondence: whether those structural results accurately capture consequential properties of real systems and improve engineering decisions beyond simpler baselines.
