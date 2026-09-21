@@ -1,0 +1,44 @@
+{
+  "schema_version": "synapse.issue-165-pilot-lineage.v1",
+  "freeze_date_utc": "2026-09-21",
+  "synapse_revision": "975fbd743e4c310c5e41feac41698e2044f25b6d",
+  "external_repository": {
+    "origin": "https://github.com/phpenv/phpenv.git",
+    "t0_commit": "08f132219c0b3f4474749fc9ec9ea0932bb72129",
+    "t0_tree": "75cf2c427e8c1cbe89b7378f113e4e3a849b8b5e",
+    "t0_export_file_manifest_sha256": "6a847e0877397b6de017c0d008b7e1fd6aa02cf8dd4edeab0473ce708798afd1",
+    "observed_head": "adc99a7a64564c8ad942b4ee1b3ad630a5b1cf96",
+    "decision_commit": "9503cebe49336ea0cb126500995846844797d67a"
+  },
+  "frozen_files_sha256": {
+    "protocol.md": "c7e57c889e6d08599a491b75bee4e827400c4c658b2dc08a4c8424bf205e6c79",
+    "control.md": "5fedefe3443edc08263d82d3c77f40cec184aedd2b0e66689f52a9d3c869a920",
+    "input.json": "8c409c9285275d4065931d46f4a57154ec5845400fadbe72b5f248721cf93ebc"
+  },
+  "execution": {
+    "command": "python -m dependency_algebra.cli compile --input docs/experiments/issue-165/input.json --output artifact.json",
+    "runs": 2,
+    "byte_identical_replay": true,
+    "exit_codes": [0, 0],
+    "stdout": "",
+    "stderr": "",
+    "manual_interventions": [
+      "selected a complete repository already present in the execution environment because network access returned HTTP 403",
+      "exported T0 with git archive",
+      "translated source observations into the declared topology by hand"
+    ],
+    "runtime": {
+      "python": "3.12.13",
+      "git": "2.43.0",
+      "kernel": "Linux 6.18.44 x86_64"
+    },
+    "artifact_file_sha256": "35c1ed0584cb2f6e3537c74eb02ea2506d326cef7ac2339d201fb4ef0e3b913b",
+    "artifact_hash": "sha256:b2805ea0e35de4c23dcadc06a1e431c61ab7d03560976878f848f0daa9bd501f",
+    "normalized_ir_hash": "sha256:bcc6c98cd8d4d2e5813bd880d0f32e9afb70eeeb6ed4a0ec969493df73752fbb",
+    "warnings": [],
+    "errors": [],
+    "failures": [
+      "standalone artifact-contract validation could not run because jsonschema was absent; canonical test-suite validation was run separately"
+    ]
+  }
+}
