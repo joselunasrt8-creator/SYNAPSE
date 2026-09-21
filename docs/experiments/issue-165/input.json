@@ -1,0 +1,41 @@
+{
+  "schema_version": "dependency-algebra.topology.v1",
+  "topology_id": "phpenv-08f1322-build-delegation",
+  "components": [
+    {"id": "cli", "type": "entrypoint"},
+    {"id": "plugin_command_discovery", "type": "extension-seam"},
+    {"id": "version_resolution", "type": "core"},
+    {"id": "selected_php_execution", "type": "outcome"},
+    {"id": "bundled_installer", "type": "build"},
+    {"id": "build_configuration", "type": "build"},
+    {"id": "php_installation", "type": "outcome"},
+    {"id": "install_helper", "type": "caller"},
+    {"id": "install_documentation", "type": "documentation"}
+  ],
+  "edges": [
+    {"id": "cli-discovers-plugin-commands", "from": "cli", "to": "plugin_command_discovery"},
+    {"id": "cli-resolves-version", "from": "cli", "to": "version_resolution"},
+    {"id": "version-runs-php", "from": "version_resolution", "to": "selected_php_execution"},
+    {"id": "cli-dispatches-installer", "from": "cli", "to": "bundled_installer"},
+    {"id": "installer-reads-config", "from": "bundled_installer", "to": "build_configuration"},
+    {"id": "config-produces-install", "from": "build_configuration", "to": "php_installation"},
+    {"id": "helper-calls-installer", "from": "install_helper", "to": "bundled_installer"},
+    {"id": "docs-describe-installer", "from": "install_documentation", "to": "bundled_installer"}
+  ],
+  "workloads": [
+    {
+      "id": "execute-installed-php-without-bundled-builder",
+      "roots": ["cli"],
+      "target": "selected_php_execution",
+      "candidate_set": ["bundled_installer", "build_configuration"],
+      "expected_classification": "VALID"
+    },
+    {
+      "id": "bundled-install-requires-builder",
+      "roots": ["cli"],
+      "target": "php_installation",
+      "candidate_set": ["bundled_installer", "build_configuration"],
+      "expected_classification": "DEGRADED"
+    }
+  ]
+}
